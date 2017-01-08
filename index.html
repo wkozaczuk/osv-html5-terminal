@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="css/cmd.min.css">
+  <title>Cmd example</title>
+  <style type="text/css">
+    body {
+      background-color: #444;
+    }
+    #cmd {
+      width:  1200px;
+      height: 700px;
+      margin: 10px;
+      font-size: 10pt;
+    }
+  </style>
+</head>
+<body>
+  <div id="cmd"></div>
+  <button>Invert</button>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="js/Stack.js"></script>
+  <script type="text/javascript" src="js/OsvCommands.js"></script>
+  <script type="text/javascript" src="js/Cmd.js"></script>
+  <script type="text/javascript">
+    var osvShowCommand = new OsvShowCommandLineCommand();
+    var osvCatCommand = new OsvCatCommand();
+    var osvLsCommand = new OsvLsCommand();
+
+    var interface = new Cmd({
+      selector: '#cmd',
+      dark_css: 'dist/cmd_dark.min.css',
+      light_css: 'dist/cmd_light.min.css',
+      history_id: 'interface2',
+      tabcomplete_url: 'tabcomplete.json',
+      remote_cmd_list_url: 'commands.json',
+      executableCommands: [osvShowCommand,osvCatCommand,osvLsCommand]
+    });
+
+    // Customise the prompt string (PS1)
+    //interface1.setPrompt('? ');
+
+    // Run an arbitrary command string
+    $('button').on('click', function () {
+      interface.handleInput('invert');
+    });
+  </script>
+</body>
+</html>
