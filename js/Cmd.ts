@@ -1,3 +1,13 @@
+/**
+ * HTML5 Command Line Terminal
+ *
+ * Adapted and converted from original Javascript implementation to TypeScript by Waldemar Kozaczuk.
+ *
+ * @author   Jake Gully (chimpytk@gmail.com)
+ * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
+ * @license  MIT License
+ */
+
 //import * as $ from "jquery";
 
 /**
@@ -374,6 +384,20 @@ class Cmd {
       //TODO
    }
 
+   /**
+    * Set the prompt string
+    * @param {string} new_prompt The new prompt string
+    */
+   public setPrompt(newPrompt:string) {
+      this.prompt = newPrompt;
+      this.promptElement.html(this.prompt);
+   }
+
+   /**
+    * Handle typed in input
+    * @param input
+    * @returns {boolean}
+    */
    public handleInput(input:string) {
       const commands = input.split(' ');
 

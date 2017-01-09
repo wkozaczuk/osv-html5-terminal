@@ -1,12 +1,16 @@
 /**
- * Created by wkozaczuk on 1/7/17.
+ * OSv commands
+ *
+ * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
+ * @license  MIT License
  */
-//import Collections = require('typescript-collections');
 import * as Collections from 'typescript-collections';
 
 abstract class OsvCommandBase implements Command {
    protected static urlBase = "http://localhost:8000";
    protected cmd:Cmd;
+
+   method:string = "GET";
 
    abstract matches(input:string):boolean;
    abstract buildUrl(options:Collections.Set<string>,commandArguments:string[]):string
@@ -51,13 +55,14 @@ abstract class OsvCommandBase implements Command {
 
       $.ajax({
          url:this.buildUrl(options,commandArguments),
+         method:this.method,
          success:(response)=>this.handleExecutionSuccess(options,response),
          error:(response)=>this.handleExecutionError(response)
       });
    }
 }
 
-class OsvShowCommandLineCommand extends OsvCommandBase {
+export class OsvShowCommandLineCommand extends OsvCommandBase {
    matches(input:string) {
       return input === 'cmdline';
    }
@@ -71,7 +76,7 @@ class OsvShowCommandLineCommand extends OsvCommandBase {
    }
 }
 
-class OsvCatCommand extends OsvCommandBase {
+export class OsvCatCommand extends OsvCommandBase {
    matches(input: string) {
       return input.indexOf('cat') === 0;
    }
@@ -88,7 +93,7 @@ class OsvCatCommand extends OsvCommandBase {
    }
 }
 
-class OsvLsCommand extends OsvCommandBase {
+export class OsvLsCommand extends OsvCommandBase {
    matches(input: string): boolean {
       return input.indexOf('ls') === 0;
    }
@@ -142,13 +147,29 @@ class OsvLsCommand extends OsvCommandBase {
    }
 }
 
-class OsvDmesgCommand extends OsvCommandBase {
+export class OsvDmesgCommand extends OsvCommandBase {
    matches(input: string) {
       return input.indexOf('dmesg') === 0;
    }
 
    buildUrl(options:Collections.Set<string>,commandArguments:string[]) {
       return OsvCommandBase.urlBase + "/os/dmesg";
+   }
+
+   handleExecutionSuccess(options:Collections.Set<string>,response:any) {
+      this.cmd.displayOutput(response.replace(/\n/g,"<BR>"),false);
+   }
+}
+
+export class OsvRebootCommand extends OsvCommandBase {
+   method:string = "POST";
+
+   matches(input: string) {
+      return input.indexOf('reboot') === 0;
+   }
+
+   buildUrl(options:Collections.Set<string>,commandArguments:string[]) {
+      return OsvCommandBase.urlBase + "/os/reboot";
    }
 
    handleExecutionSuccess(options:Collections.Set<string>,response:any) {

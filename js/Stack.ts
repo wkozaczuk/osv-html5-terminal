@@ -1,8 +1,10 @@
 /**
  * Stack for holding previous commands for retrieval with the up arrow.
  * Stores data in localStorage. Won't push consecutive duplicates.
+ * Converted from original Javascript implementation to TypeScript
  *
  * @author   Jake Gully, chimpytk@gmail.com
+ * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
  * @license  MIT License
  */
 
