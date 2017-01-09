@@ -1,0 +1,54 @@
+
+a {
+  .doColor(@text-color);
+
+  &:hover{
+    color: darken(@text-color, 20%);
+    text-decoration: underline;
+  }
+  
+  &.grey_text {
+    color: @text-grey;
+  }
+}
+
+.prompt {
+  .doColor(@prompt-color);
+  font-weight: 300;
+  text-shadow: 0 0 113px rgba(0, 255, 0, 0.4);
+}
+
+.red_highlight {
+  .doColor(@text-error);
+  font-weight: bold;
+}
+
+
+.blue_highlight {
+  .doColor(@text-title);
+  font-weight: bold;
+}
+
+
+.green_highlight {
+  .doColor(@text-success);
+  font-weight: 300;
+}
+
+
+.grey_text {
+  .doColor(@text-grey);
+}
+
+
+.ascii{
+  line-height: 50%;
+  letter-spacing: -1px;
+}
+
+code {
+  font-family: 'courier new', monospace;
+  font-weight: 300;
+  font-size: 15px;
+  color: #fff;
+}

@@ -1,0 +1,19 @@
+{
+  "name": "osv-html5-terminal",
+  "version": "1.0.0",
+  "description": "OSv HTML5 terminal app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Waldemar Kozaczuk",
+  "license": "ISC",
+  "dependencies": {
+    "@types/jquery": "^2.0.39",
+    "typescript-collections": "^1.2.3"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-less": "~1.4.0"
+  }
+}
