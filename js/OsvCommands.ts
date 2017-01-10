@@ -4,7 +4,8 @@
  * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
  * @license  MIT License
  */
-import * as Collections from 'typescript-collections';
+import * as Collections from './../node_modules/typescript-collections/dist/lib/umd.min.js';
+import {Cmd,Command} from "./Cmd.js";
 
 abstract class OsvCommandBase implements Command {
    protected static urlBase = "http://localhost:8000";

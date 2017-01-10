@@ -9,6 +9,7 @@
  */
 
 //import * as $ from "jquery";
+import {Stack} from "./Stack.js"
 
 /**
  * Describes configuration of the command
@@ -26,7 +27,7 @@ interface CmdConfiguration {
 /**
  * Describes a command that can be executed to show some input
  */
-interface Command {
+export interface Command {
    setCmd(cmd:Cmd);
    matches(input:string):boolean;
    execute(input:string);
@@ -35,7 +36,7 @@ interface Command {
 /**
  *
  */
-class Cmd {
+export class Cmd {
 
    private configuration:CmdConfiguration = {
       busyText:'Communicating...',

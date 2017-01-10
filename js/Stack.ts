@@ -13,7 +13,7 @@
  * @param {string}  id       Unique id for this stack
  * @param {integer} max_size Number of commands to store
  */
-class Stack<T> {
+export class Stack<T> {
    private instanceId:string;
    private maxDepth:number;
    private arr:T[] = [];

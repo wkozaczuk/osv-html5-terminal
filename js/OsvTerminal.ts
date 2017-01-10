@@ -4,9 +4,10 @@
  * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
  * @license  MIT License
  */
-import {OsvShowCommandLineCommand,OsvCatCommand,OsvLsCommand,OsvDmesgCommand,OsvRebootCommand} from "./OsvCommands";
+import {OsvShowCommandLineCommand,OsvCatCommand,OsvLsCommand,OsvDmesgCommand,OsvRebootCommand} from "./OsvCommands.js";
+import {Cmd} from './Cmd.js'
 
-class OsvTerminal extends Cmd {
+export class OsvTerminal extends Cmd {
    constructor(selector:string) {
       super({
          selector: selector,

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/jquery": "^2.0.39",
+    "systemjs": "^0.19.41",
     "typescript-collections": "^1.2.3"
   },
   "devDependencies": {
