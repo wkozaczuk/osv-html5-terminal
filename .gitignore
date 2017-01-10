@@ -1,5 +1,6 @@
 node_modules/
 css/*.css
 js/*.js*
+dist/*
 .idea
 *.iml

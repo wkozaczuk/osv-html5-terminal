@@ -1,8 +1,15 @@
 {
   "compilerOptions": {
-    "sourceMap":  true
+    "sourceMap": true,
+    "module": "system",
+    "moduleResolution": "node",
+    "outDir": "./dist"
   },
  "include": [
-        "js/*.ts"
-    ]
+   "src/*.ts",
+   "src/**/*.ts"
+    ],
+  "exclude": [
+    "node_modules"
+  ]
 }

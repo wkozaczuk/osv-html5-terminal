@@ -8,29 +8,28 @@
  * @license  MIT License
  */
 
-//import * as $ from "jquery";
-import {Stack} from "./Stack.js"
+import {Stack} from "./Stack.js";
 
 /**
  * Describes configuration of the command
  */
 interface CmdConfiguration {
-   readonly busyText:string;
-   readonly executableCommands:Command[];
-   readonly historyId:string;
-   readonly remoteCmdListUrl?:string;
-   readonly selector:string;
-   readonly unknownCmd:string;
-   readonly typewriterTime:number;
+   readonly busyText: string;
+   readonly executableCommands: Command[];
+   readonly historyId: string;
+   readonly remoteCmdListUrl?: string;
+   readonly selector: string;
+   readonly unknownCmd: string;
+   readonly typewriterTime: number;
 }
 
 /**
  * Describes a command that can be executed to show some input
  */
 export interface Command {
-   setCmd(cmd:Cmd);
-   matches(input:string):boolean;
-   execute(input:string);
+   setCmd(cmd: Cmd);
+   matches(input: string): boolean;
+   execute(input: string);
 }
 
 /**
@@ -38,25 +37,25 @@ export interface Command {
  */
 export class Cmd {
 
-   private configuration:CmdConfiguration = {
-      busyText:'Communicating...',
-      historyId:'cmd_history',
-      remoteCmdListUrl:'',
-      selector:'#cmd',
-      unknownCmd:'Unrecognised command',
-      typewriterTime:32,
-      executableCommands:[]
+   private configuration: CmdConfiguration = {
+      busyText: 'Communicating...',
+      historyId: 'cmd_history',
+      remoteCmdListUrl: '',
+      selector: '#cmd',
+      unknownCmd: 'Unrecognised command',
+      typewriterTime: 32,
+      executableCommands: []
    };
 
-   private commandsStack:Stack<string>;
-   
-   private autoCompletionAttempted:Boolean = false;
-   private keyArrays:Array<number> = [9, 13, 38, 40, 27];
-   private prompt:string = '$ ';
+   private commandsStack: Stack<string>;
 
-   private remoteCommands:Array<string> = [];
-   private allCommands:Array<string> = [];
-   private localCommands:Array<string> = [
+   private autoCompletionAttempted: Boolean = false;
+   private keyArrays: Array<number> = [9, 13, 38, 40, 27];
+   private prompt: string = '$ ';
+
+   private remoteCommands: Array<string> = [];
+   private allCommands: Array<string> = [];
+   private localCommands: Array<string> = [
       'clear',
       'clr',
       'cls',
@@ -64,13 +63,13 @@ export class Cmd {
       'invert'
    ];
 
-   private container:JQuery;
-   private input:JQuery;
-   private output:JQuery;
-   private promptElement:JQuery;
-   private wrapper:JQuery;
+   private container: JQuery;
+   private input: JQuery;
+   private output: JQuery;
+   private promptElement: JQuery;
+   private wrapper: JQuery;
 
-   constructor(userConfiguration?:any) {
+   constructor(userConfiguration?: any) {
       $.extend(this.configuration, userConfiguration);
 
       if (this.configuration.remoteCmdListUrl) {
@@ -114,7 +113,7 @@ export class Cmd {
 
       this.wrapper
          .find('[data-type=autofill]')
-         .on('click', function() {
+         .on('click', function () {
             input.val($(this).data('autofill'));
          });
    }
@@ -159,7 +158,7 @@ export class Cmd {
     * Takes an input (which have been collected from keystrokes), escapes <,>,",` and & and outputs with prompt
     * @param input
     */
-   private displayInput(input:string) {
+   private displayInput(input: string) {
       const escapedInput = input.replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
          .replace(/>/g, "&gt;")
@@ -176,8 +175,8 @@ export class Cmd {
     * @param output
     * @param breakLine
     */
-   displayOutput(output:string,breakLine:boolean=true) {
-      if (this.output.html() && breakLine)  {
+   displayOutput(output: string, breakLine: boolean = true) {
+      if (this.output.html() && breakLine) {
          this.output.append('<br>');
       }
 
@@ -217,7 +216,7 @@ export class Cmd {
    /**
     * Handle keypresses
     */
-   private handleKeyPress(event:KeyboardEvent) {
+   private handleKeyPress(event: KeyboardEvent) {
       const keyCode = event.keyCode || event.which;
       const inputString = this.input.val();
 
@@ -260,7 +259,7 @@ export class Cmd {
    /**
     * Prevent default action of special keys
     */
-   private handleKeyUp(event:KeyboardEvent) {
+   private handleKeyUp(event: KeyboardEvent) {
       const key = event.which;
 
       if ($.inArray(key, this.keyArrays) > -1) {
@@ -274,7 +273,7 @@ export class Cmd {
    /**
     * Prevent default action of special keys
     */
-   private handleKeyDown(event:KeyboardEvent) {
+   private handleKeyDown(event: KeyboardEvent) {
       var key = event.which;
 
       if ($.inArray(key, this.keyArrays) > -1) {
@@ -324,7 +323,7 @@ export class Cmd {
     * Changes the input type to the specified one
     * @param inputType
     */
-   private showInputType(inputType?:string) {
+   private showInputType(inputType?: string) {
       switch (inputType) {
          case 'password':
             this.input = $('<input/>')
@@ -356,14 +355,14 @@ export class Cmd {
    /**
     * Complete command names when tab is pressed
     */
-   private tabComplete(str:string) {
+   private tabComplete(str: string) {
       // If we have a space then offload to external processor
       if (str.indexOf(' ') !== -1) {
          this.autoCompletionAttempted = false;
          return;
       }
 
-      var suggestions = this.allCommands.filter((value:string) => {
+      var suggestions = this.allCommands.filter((value: string) => {
          return value.indexOf(str) == 0;
       });
 
@@ -389,7 +388,7 @@ export class Cmd {
     * Set the prompt string
     * @param {string} new_prompt The new prompt string
     */
-   public setPrompt(newPrompt:string) {
+   public setPrompt(newPrompt: string) {
       this.prompt = newPrompt;
       this.promptElement.html(this.prompt);
    }
@@ -399,13 +398,13 @@ export class Cmd {
     * @param input
     * @returns {boolean}
     */
-   public handleInput(input:string) {
+   public handleInput(input: string) {
       const commands = input.split(' ');
 
       this.displayInput(input);
 
       // TODO Check if has anything
-      switch(commands[0]) {
+      switch (commands[0]) {
          case '':
             this.displayOutput('');
             break;
@@ -436,30 +435,30 @@ export class Cmd {
             }
 
             matchingExecutableCommands[0].execute(input);
-            /*
-            var result = this.options.external_processor(input_str, this);
+         /*
+          var result = this.options.external_processor(input_str, this);
 
-            switch (typeof result) {
-               // If undefined, external handler should
-               // call handleResponse when done
-               case 'boolean':
-                  if (!result) {
-                     this.displayOutput(this.options.unknown_cmd);
-                  }
-                  break;
-               // If we get a response object, deal with it directly
-               case 'object':
-                  this.handleResponse(result);
-                  break;
-               // If we have a string, output it. This shouldn't
-               // really happen but it might be useful
-               case 'string':
-                  this.displayOutput(result);
-                  break;
-               default:
-                  this.displayOutput(this.options.unknown_cmd);
-            }
-            */
+          switch (typeof result) {
+          // If undefined, external handler should
+          // call handleResponse when done
+          case 'boolean':
+          if (!result) {
+          this.displayOutput(this.options.unknown_cmd);
+          }
+          break;
+          // If we get a response object, deal with it directly
+          case 'object':
+          this.handleResponse(result);
+          break;
+          // If we have a string, output it. This shouldn't
+          // really happen but it might be useful
+          case 'string':
+          this.displayOutput(result);
+          break;
+          default:
+          this.displayOutput(this.options.unknown_cmd);
+          }
+          */
       }
    }
 }

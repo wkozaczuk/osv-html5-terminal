@@ -1,4 +1,4 @@
-import {OsvTerminal} from "./OsvTerminal.js"
+import {OsvTerminal} from "./osv/OsvTerminal.js";
 
 var terminal = new OsvTerminal('#cmd');
 

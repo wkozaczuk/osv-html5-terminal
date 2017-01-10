@@ -14,13 +14,13 @@
  * @param {integer} max_size Number of commands to store
  */
 export class Stack<T> {
-   private instanceId:string;
-   private maxDepth:number;
-   private arr:T[] = [];
-   private whenLast:T;
-   private cur:number = 0;
+   private instanceId: string;
+   private maxDepth: number;
+   private arr: T[] = [];
+   private whenLast: T;
+   private cur: number = 0;
 
-   constructor(id:string,maxDepth:number,whenLast:T) {
+   constructor(id: string, maxDepth: number, whenLast: T) {
       this.instanceId = id;
       this.maxDepth = maxDepth;
       this.whenLast = whenLast;
@@ -36,7 +36,7 @@ export class Stack<T> {
    /**
     * Load array from localstorage
     */
-   private getArray():T[] {
+   private getArray(): T[] {
       if (!localStorage['cmd_stack_' + this.instanceId]) {
          this.arr = [];
          this.persist(this.arr);
@@ -54,7 +54,7 @@ export class Stack<T> {
     * Push a command to the array
     * @param  {string} cmd Command to append to stack
     */
-   push(cmd:T) {
+   push(cmd: T) {
       this.arr = this.getArray();
 
       // don't push if same as last command
@@ -77,7 +77,7 @@ export class Stack<T> {
     * Get previous command from stack (up key)
     * @return {string} Retrieved command string
     */
-   prev():T {
+   prev(): T {
       this.cur -= 1;
 
       if (this.cur < 0) {
@@ -91,7 +91,7 @@ export class Stack<T> {
     * Get next command from stack (down key)
     * @return {string} Retrieved command string
     */
-   next():T {
+   next(): T {
       this.cur = this.cur + 1;
 
       // Return a blank string as last item
@@ -119,7 +119,7 @@ export class Stack<T> {
     * Is stack empty
     * @return {Boolean} True if stack is empty
     */
-   isEmpty():boolean {
+   isEmpty(): boolean {
       this.arr = this.getArray();
       return (this.arr.length === 0);
    }
@@ -137,7 +137,7 @@ export class Stack<T> {
     * Get current cursor location
     * @return {integer} Current cursor index
     */
-   getCur():number {
+   getCur(): number {
       return this.cur;
    }
 
@@ -145,7 +145,7 @@ export class Stack<T> {
     * Get size of the stack
     * @return {Integer} Size of stack
     */
-   getSize():number {
+   getSize(): number {
       return this.arr.length;
    }
 }
