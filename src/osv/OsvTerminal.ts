@@ -10,6 +10,7 @@ import {OsvLsCommand} from "./OsvLsCommand";
 import {OsvDmesgCommand} from "./OsvDmesgCommand";
 import {OsvRebootCommand} from "./OsvReboot";
 import {OsvCmdineCommand} from "./OsvCmdlineCommand";
+import {OsvDateCommand} from "./OsvDateCommand";
 
 export class OsvTerminal extends Cmd {
    constructor(selector: string) {
@@ -22,7 +23,8 @@ export class OsvTerminal extends Cmd {
             new OsvCatCommand(),
             new OsvLsCommand(),
             new OsvDmesgCommand(),
-            new OsvRebootCommand()]
+            new OsvRebootCommand(),
+            new OsvDateCommand()]
       })
    }
 }
