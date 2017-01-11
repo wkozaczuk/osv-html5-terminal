@@ -9,13 +9,14 @@ export class OsvLsCommand extends OsvCommandBase {
    buildUrl(options: Set<string>, commandArguments: string[]): string {
       let path: string = "";
       if (commandArguments.length > 0) {
-         path = commandArguments[commandArguments.length - 1].replace(/\//g, "%2F");
+         path = commandArguments[commandArguments.length - 1];
       }
       else {
-         path = "%2F";
+         path = "/";
       }
 
-      return OsvCommandBase.urlBase + "/file/" + path + "?op=LISTSTATUS";
+      let rpath = encodeURIComponent(path);
+      return OsvCommandBase.urlBase + "/file/" + rpath + "?op=LISTSTATUS";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

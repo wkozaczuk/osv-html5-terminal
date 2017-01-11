@@ -8,7 +8,7 @@ export class OsvCatCommand extends OsvCommandBase {
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
       const path: string = commandArguments[commandArguments.length - 1];
-      const rpath: string = path.replace(/\//g, "%2F");
+      const rpath: string = encodeURIComponent(path);
       return OsvCommandBase.urlBase + "/file/" + rpath + "?op=GET";
    }
 
