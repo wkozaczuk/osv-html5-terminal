@@ -4,7 +4,7 @@
  * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
  * @license  MIT License
  */
-import {Cmd} from "../cmd/Cmd.js";
+import {Cmd} from "../cmd/Cmd";
 import {OsvShowCommandLineCommand, OsvCatCommand, OsvLsCommand, OsvRebootCommand, OsvDmesgCommand} from "./OsvCommands.js";
 
 export class OsvTerminal extends Cmd {

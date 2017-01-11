@@ -8,7 +8,7 @@
  * @license  MIT License
  */
 
-import {Stack} from "./Stack.js";
+import {Stack} from "./Stack";
 
 /**
  * Describes configuration of the command

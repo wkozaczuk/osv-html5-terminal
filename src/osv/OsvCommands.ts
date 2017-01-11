@@ -4,8 +4,8 @@
  * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
  * @license  MIT License
  */
-import {Cmd, Command} from "../cmd/Cmd.js";
-import Set from "typescript-collections/dist/lib/Set.js";
+import {Cmd, Command} from "../cmd/Cmd";
+import Set from "typescript-collections/dist/lib/Set";
 
 abstract class OsvCommandBase implements Command {
    protected static urlBase = "http://localhost:8000";

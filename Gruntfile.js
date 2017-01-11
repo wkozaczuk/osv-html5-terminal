@@ -13,9 +13,9 @@ module.exports = function(grunt) {
         src: "typescript-collections/**",
         dest: 'dist/'
       },
-      html: {
+      other: {
         expand: true,
-        src: "index.html",
+        src: ["index.html","commands.json"],
         dest: 'dist'
       }
     },
