@@ -5,7 +5,11 @@
  * @license  MIT License
  */
 import {Cmd} from "../cmd/Cmd";
-import {OsvShowCommandLineCommand, OsvCatCommand, OsvLsCommand, OsvRebootCommand, OsvDmesgCommand} from "./OsvCommands.js";
+import {OsvCatCommand} from "./OsvCatCommand";
+import {OsvLsCommand} from "./OsvLsCommand";
+import {OsvDmesgCommand} from "./OsvDmesgCommand";
+import {OsvRebootCommand} from "./OsvReboot";
+import {OsvCmdineCommand} from "./OsvCmdlineCommand";
 
 export class OsvTerminal extends Cmd {
    constructor(selector: string) {
@@ -14,7 +18,7 @@ export class OsvTerminal extends Cmd {
          historyId: 'OsvTerminal',
          remoteCmdListUrl: 'commands.json',
          executableCommands: [
-            new OsvShowCommandLineCommand(),
+            new OsvCmdineCommand(),
             new OsvCatCommand(),
             new OsvLsCommand(),
             new OsvDmesgCommand(),
