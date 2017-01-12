@@ -13,6 +13,8 @@ import {OsvCmdineCommand} from "./OsvCmdlineCommand";
 import {OsvDateCommand} from "./OsvDateCommand";
 import {OsvPowerOffCommand} from "./OsvPowerOffCommand";
 import {OsvDfCommand} from "./OsvDfCommand";
+import {OsvMkdirCommand} from "./OsvMkdirCommand";
+import {OsvRmCommand} from "./OsvRmCommand";
 
 export class OsvTerminal extends Cmd {
    constructor(selector: string) {
@@ -28,7 +30,9 @@ export class OsvTerminal extends Cmd {
             new OsvDmesgCommand(),
             new OsvLsCommand(),
             new OsvPowerOffCommand(),
-            new OsvRebootCommand()]
+            new OsvRebootCommand(),
+            new OsvMkdirCommand(),
+            new OsvRmCommand()]
       })
    }
 }
