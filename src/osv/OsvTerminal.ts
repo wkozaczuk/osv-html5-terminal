@@ -15,6 +15,7 @@ import {OsvPowerOffCommand} from "./OsvPowerOffCommand";
 import {OsvDfCommand} from "./OsvDfCommand";
 import {OsvMkdirCommand} from "./OsvMkdirCommand";
 import {OsvRmCommand} from "./OsvRmCommand";
+import {OsvUptimeCommand} from "./OsvUptimeCommand";
 
 export class OsvTerminal extends Cmd {
    constructor(selector: string) {
@@ -32,7 +33,8 @@ export class OsvTerminal extends Cmd {
             new OsvPowerOffCommand(),
             new OsvRebootCommand(),
             new OsvMkdirCommand(),
-            new OsvRmCommand()]
+            new OsvRmCommand(),
+            new OsvUptimeCommand()]
       })
    }
 }
