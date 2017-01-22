@@ -3,6 +3,7 @@ import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvLsCommand extends OsvCommandBase {
 
+   private path:string;
    private static LongDateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
    //private OverYearDateTimeFormatOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
@@ -11,23 +12,55 @@ export class OsvLsCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]): string {
-      let path: string = "";
       if (commandArguments.length > 0) {
-         path = commandArguments[commandArguments.length - 1];
+         this.path = commandArguments[commandArguments.length - 1];
       }
       else {
-         path = "/";
+         this.path = "/";
       }
 
-      let rpath = encodeURIComponent(path);
+      let rpath = encodeURIComponent(this.path);
       return OsvCommandBase.urlBase + "/file/" + rpath + "?op=LISTSTATUS";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
+      this.listDirectory(options,response);
+      //
+      // Check if we need to go recursive
+      if (options.contains("R")) {
+         this.listSubdirectories(options, response, this.path, []);
+      }
+   }
+
+   private listSubdirectories(options: Set<string>, response: any, thisPath:string, otherSubdirectories: string[]) {
+      console.log(`Navigate subdirectories for: ${thisPath}`);
+
+      let subdirectories = response
+         .filter((entry) => entry.pathSuffix != '.' && entry.pathSuffix != '..' && entry.type == 'DIRECTORY')
+         .map((entry) => `${thisPath}/${entry.pathSuffix}`);
+
+      let allSubdirectories = subdirectories.concat(otherSubdirectories);
+
+      if(allSubdirectories.length > 0) {
+         let nextSubdirectory = allSubdirectories.shift();
+
+         $.ajax({
+            url: OsvCommandBase.urlBase + "/file/" + encodeURIComponent(nextSubdirectory) + "?op=LISTSTATUS",
+            method: this.method,
+            success: (newResponse)=>{
+               this.listDirectory(options,newResponse);
+               this.listSubdirectories(options, newResponse, nextSubdirectory, allSubdirectories)
+            },
+            error: (response)=>this.handleExecutionError(response)
+         });
+      }
+   }
+
+   private listDirectory(options: Set<string>, response: any) {
       let longFormat = options.contains("l");
       let showAll = options.contains("a") || options.contains("all");
 
-      let entries = response.filter((entry)=> showAll || (entry.pathSuffix != '.' && entry.pathSuffix != '..'));
+      let entries = response.filter((entry) => showAll || (entry.pathSuffix != '.' && entry.pathSuffix != '..'));
 
       if (options.contains("n")) {
          entries.sort((entry1, entry2)=> {
