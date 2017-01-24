@@ -81,7 +81,11 @@ export class Cmd {
             method: 'GET',
             success: function (data) {
                this.remoteCommands = data;
-               this.allCommands = $.merge(this.remoteCommands, this.localCommands)
+               this.allCommands = $.merge(this.remoteCommands, this.localCommands);
+               this.configuration.executableCommands.forEach((command)=> {
+                  this.allCommands.push(command.typed());
+               });
+
             }
          });
       } else {
@@ -104,8 +108,9 @@ export class Cmd {
 
       this.configuration.executableCommands.forEach((command)=> {
          command.setCmd(this);
-         this.allCommands.push(command.typed());
       });
+
+      console.log("Constructor: " + this.allCommands.length);
    }
 
    /**
@@ -366,6 +371,7 @@ export class Cmd {
          return;
       }
 
+      console.log("Tab: " + this.allCommands.length);
       let suggestions = this.allCommands.filter((value: string) => {
          return value.indexOf(str) == 0;
       });
