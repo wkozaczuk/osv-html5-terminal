@@ -4,6 +4,10 @@ import Set from "typescript-collections/dist/lib/Set";
 export class OsvPowerOffCommand extends OsvCommandBase {
    method: string = "POST";
 
+   typed() {
+      return 'poweroff';
+   }
+
    matches(input: string) {
       return input.indexOf('poweroff') === 0;
    }

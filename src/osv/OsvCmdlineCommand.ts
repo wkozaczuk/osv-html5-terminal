@@ -1,7 +1,11 @@
 import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvCmdineCommand extends OsvCommandBase {
+export class OsvCmdlineCommand extends OsvCommandBase {
+   typed() {
+      return 'cmdline';
+   }
+
    matches(input: string) {
       return input === 'cmdline';
    }

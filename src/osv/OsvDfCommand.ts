@@ -2,6 +2,10 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvDfCommand extends OsvCommandBase {
+   typed() {
+      return 'df';
+   }
+
    matches(input: string) {
       return input.indexOf('df') === 0;
    }

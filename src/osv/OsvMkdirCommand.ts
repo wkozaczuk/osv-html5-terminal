@@ -4,6 +4,10 @@ import Set from "typescript-collections/dist/lib/Set";
 export class OsvMkdirCommand extends OsvCommandBase {
    method: string = "PUT";
 
+   typed() {
+      return 'mkdir';
+   }
+
    matches(input: string) {
       return input.indexOf('mkdir') === 0;
    }

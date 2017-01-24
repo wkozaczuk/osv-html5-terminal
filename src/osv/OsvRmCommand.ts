@@ -4,6 +4,10 @@ import Set from "typescript-collections/dist/lib/Set";
 export class OsvRmCommand extends OsvCommandBase {
    method: string = "DELETE";
 
+   typed() {
+      return 'rm';
+   }
+
    matches(input: string) {
       return input.indexOf('rm') === 0;
    }

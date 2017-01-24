@@ -2,6 +2,10 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvUptimeCommand extends OsvCommandBase {
+   typed() {
+      return 'uptime';
+   }
+
    matches(input: string) {
       return input.indexOf('uptime') === 0;
    }

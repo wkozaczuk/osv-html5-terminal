@@ -4,6 +4,10 @@ import Set from "typescript-collections/dist/lib/Set";
 export class OsvRebootCommand extends OsvCommandBase {
    method: string = "POST";
 
+   typed() {
+      return 'reboot';
+   }
+
    matches(input: string) {
       return input.indexOf('reboot') === 0;
    }

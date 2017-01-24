@@ -27,6 +27,7 @@ interface CmdConfiguration {
  * Describes a command that can be executed to show some input
  */
 export interface Command {
+   typed():string;
    setCmd(cmd: Cmd);
    matches(input: string): boolean;
    execute(input: string);
@@ -101,7 +102,10 @@ export class Cmd {
       this.setupDOM();
       this.input.focus();
 
-      this.configuration.executableCommands.forEach((command)=>command.setCmd(this));
+      this.configuration.executableCommands.forEach((command)=> {
+         command.setCmd(this);
+         this.allCommands.push(command.typed());
+      });
    }
 
    /**
@@ -274,7 +278,7 @@ export class Cmd {
     * Prevent default action of special keys
     */
    private handleKeyDown(event: KeyboardEvent) {
-      var key = event.which;
+      let key = event.which;
 
       if ($.inArray(key, this.keyArrays) > -1) {
          event.preventDefault();
@@ -362,7 +366,7 @@ export class Cmd {
          return;
       }
 
-      var suggestions = this.allCommands.filter((value: string) => {
+      let suggestions = this.allCommands.filter((value: string) => {
          return value.indexOf(str) == 0;
       });
 

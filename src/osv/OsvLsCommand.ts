@@ -7,6 +7,10 @@ export class OsvLsCommand extends OsvCommandBase {
    private static LongDateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
    //private OverYearDateTimeFormatOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
+   typed() {
+      return 'ls';
+   }
+
    matches(input: string): boolean {
       return input.indexOf('ls') === 0;
    }

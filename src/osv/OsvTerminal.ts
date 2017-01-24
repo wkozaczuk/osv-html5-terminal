@@ -9,7 +9,7 @@ import {OsvCatCommand} from "./OsvCatCommand";
 import {OsvLsCommand} from "./OsvLsCommand";
 import {OsvDmesgCommand} from "./OsvDmesgCommand";
 import {OsvRebootCommand} from "./OsvReboot";
-import {OsvCmdineCommand} from "./OsvCmdlineCommand";
+import {OsvCmdlineCommand} from "./OsvCmdlineCommand";
 import {OsvDateCommand} from "./OsvDateCommand";
 import {OsvPowerOffCommand} from "./OsvPowerOffCommand";
 import {OsvDfCommand} from "./OsvDfCommand";
@@ -25,7 +25,7 @@ export class OsvTerminal extends Cmd {
          historyId: 'OsvTerminal',
          remoteCmdListUrl: 'commands.json',
          executableCommands: [
-            new OsvCmdineCommand(),
+            new OsvCmdlineCommand(),
             new OsvCatCommand(),
             new OsvDateCommand(),
             new OsvDfCommand(),

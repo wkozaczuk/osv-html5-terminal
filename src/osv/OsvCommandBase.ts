@@ -13,6 +13,8 @@ export abstract class OsvCommandBase implements Command {
 
    method: string = "GET";
 
+   abstract typed():string
+
    abstract matches(input: string): boolean;
 
    abstract buildUrl(options: Set<string>, commandArguments: string[]): string

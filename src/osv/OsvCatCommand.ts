@@ -2,6 +2,10 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvCatCommand extends OsvCommandBase {
+   typed() {
+      return 'cat';
+   }
+
    matches(input: string) {
       return input.indexOf('cat') === 0;
    }

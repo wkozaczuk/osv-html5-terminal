@@ -2,6 +2,10 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvFreeCommand extends OsvCommandBase {
+   typed() {
+      return 'free';
+   }
+
    matches(input: string) {
       return input.indexOf('free') === 0;
    }
