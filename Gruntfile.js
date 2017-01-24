@@ -8,6 +8,10 @@ module.exports = function(grunt) {
         dest: 'dist/systemjs/system.js'
       },
       library2: {
+        src: "node_modules/systemjs/dist/system.js.map",
+        dest: 'dist/systemjs/system.js.map'
+      },
+      library3: {
         expand: true,
         cwd: 'node_modules/',
         src: "typescript-collections/**",

@@ -33,11 +33,11 @@ export class OsvLsCommand extends OsvCommandBase {
    }
 
    private listSubdirectories(options: Set<string>, response: any, thisPath:string, otherSubdirectories: string[]) {
-      console.log(`Navigate subdirectories for: ${thisPath}`);
+      let prefixPath = thisPath[thisPath.length-1] == '/' ? thisPath.substr(0,thisPath.length-1) : thisPath;
 
       let subdirectories = response
          .filter((entry) => entry.pathSuffix != '.' && entry.pathSuffix != '..' && entry.type == 'DIRECTORY')
-         .map((entry) => `${thisPath}/${entry.pathSuffix}`);
+         .map((entry) => `${prefixPath}/${entry.pathSuffix}`);
 
       let allSubdirectories = subdirectories.concat(otherSubdirectories);
 
@@ -48,7 +48,7 @@ export class OsvLsCommand extends OsvCommandBase {
             url: OsvCommandBase.urlBase + "/file/" + encodeURIComponent(nextSubdirectory) + "?op=LISTSTATUS",
             method: this.method,
             success: (newResponse)=>{
-               this.listDirectory(options,newResponse);
+               this.listDirectory(options,newResponse,nextSubdirectory);
                this.listSubdirectories(options, newResponse, nextSubdirectory, allSubdirectories)
             },
             error: (response)=>this.handleExecutionError(response)
@@ -56,7 +56,7 @@ export class OsvLsCommand extends OsvCommandBase {
       }
    }
 
-   private listDirectory(options: Set<string>, response: any) {
+   private listDirectory(options: Set<string>, response: any, thisDirectory?: string) {
       let longFormat = options.contains("l");
       let showAll = options.contains("a") || options.contains("all");
 
@@ -76,6 +76,9 @@ export class OsvLsCommand extends OsvCommandBase {
 
       if (longFormat) {
          this.cmd.displayOutput('<table>', false);
+         if(thisDirectory) {
+            this.cmd.displayOutput(`<tr><td colspan="7">${thisDirectory}:</td></tr>`, false);
+         }
          entries.forEach((entry) => {
             let directoryPrefix = entry.type == 'DIRECTORY' ? 'd' : '-';
 

@@ -37,6 +37,5 @@ export class OsvUptimeCommand extends OsvCommandBase {
          this.cmd.displayOutput('', false);
          this.cmd.displayOutput("Wrong data returned from server", false);
       }
-
    }
 }
