@@ -17,10 +17,10 @@ export class OsvLsCommand extends OsvCommandBase {
 
    buildUrl(options: Set<string>, commandArguments: string[]): string {
       if (commandArguments.length > 0) {
-         this.path = commandArguments[commandArguments.length - 1];
+         this.path = this.cmd.resolvePath(commandArguments[commandArguments.length - 1]);
       }
       else {
-         this.path = "/";
+         this.path = this.cmd.resolvePath();
       }
 
       let rpath = encodeURIComponent(this.path);

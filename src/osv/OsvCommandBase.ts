@@ -4,12 +4,13 @@
  * @author   Waldemar Kozaczuk, jwkozaczuk@gmail.com
  * @license  MIT License
  */
-import {Cmd, Command} from "../cmd/Cmd";
+import {Command} from "../cmd/Cmd";
 import Set from "typescript-collections/dist/lib/Set";
+import {OsvTerminal} from "./OsvTerminal";
 
 export abstract class OsvCommandBase implements Command {
    protected static urlBase = "http://localhost:8000";
-   protected cmd: Cmd;
+   protected cmd: OsvTerminal;
 
    method: string = "GET";
 
@@ -26,7 +27,7 @@ export abstract class OsvCommandBase implements Command {
       this.cmd.displayOutput("Failed: " + text);
    }
 
-   setCmd(cmd: Cmd) {
+   setCmd(cmd: OsvTerminal) {
       this.cmd = cmd;
    }
 

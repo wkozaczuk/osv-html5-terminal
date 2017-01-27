@@ -17,8 +17,13 @@ import {OsvMkdirCommand} from "./OsvMkdirCommand";
 import {OsvRmCommand} from "./OsvRmCommand";
 import {OsvUptimeCommand} from "./OsvUptimeCommand";
 import {OsvFreeCommand} from "./OsvFreeCommand";
+import {OsvCdCommand} from "./OsvCdCommand";
+import {OsvPwdCommand} from "./OsvPwdCommand";
 
 export class OsvTerminal extends Cmd {
+   private currentPath:string = "/";
+   private parentPathRegex:RegExp = /\/[^\/]+\/\.\.\//g;
+
    constructor(selector: string) {
       super({
          selector: selector,
@@ -27,16 +32,53 @@ export class OsvTerminal extends Cmd {
          executableCommands: [
             new OsvCmdlineCommand(),
             new OsvCatCommand(),
+            new OsvCdCommand(),
             new OsvDateCommand(),
             new OsvDfCommand(),
             new OsvDmesgCommand(),
-            new OsvLsCommand(),
-            new OsvPowerOffCommand(),
-            new OsvRebootCommand(),
-            new OsvMkdirCommand(),
-            new OsvRmCommand(),
             new OsvFreeCommand(),
+            new OsvLsCommand(),
+            new OsvMkdirCommand(),
+            new OsvPowerOffCommand(),
+            new OsvPwdCommand(),
+            new OsvRebootCommand(),
+            new OsvRmCommand(),
             new OsvUptimeCommand()]
       })
+   }
+
+   public getCurrentPath():string {
+      return this.currentPath;
+   }
+
+   public setCurrentPath(path:string) {
+      this.currentPath = path;
+   }
+
+   public resolvePath(path?:string) {
+      if(path) {
+         if(path.length > 0 && path[path.length-1] != '/') {
+            path = path + '/';
+         }
+
+         let resolvedPath = path.substr(0,1) === '/' ? path : `${this.currentPath}/${path}`;
+         let normalizedPath = resolvedPath
+            .replace(/\/\//g,'/')
+            .replace(/\/\.\//g,'/');
+
+         while( this.parentPathRegex.test(normalizedPath)) {
+            normalizedPath = normalizedPath.replace(this.parentPathRegex,'/');
+         }
+
+         if(normalizedPath.length > 1) {
+            return normalizedPath[normalizedPath.length - 1] == "/" ? normalizedPath.substr(0,normalizedPath.length - 1) : normalizedPath;
+         }
+         else {
+            return normalizedPath;
+         }
+      }
+      else {
+         return this.currentPath;
+      }
    }
 }
