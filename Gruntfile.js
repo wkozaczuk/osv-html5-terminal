@@ -2,6 +2,11 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    ts: {
+      default : {
+        tsconfig: true
+      }
+    },
     copy: {
       library1: {
         src: "node_modules/systemjs/dist/system.js",
@@ -35,15 +40,26 @@ module.exports = function(grunt) {
           'dist/css/osv.css': 'css/less/main.less'
         }
       }
+    },
+    connect: {
+        server: {
+            options: {
+                port: 8001,
+                hostname: '*',
+                base: 'dist',
+                keepalive: true
+            }
+        }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  //grunt.loadNpmTasks("grunt-ts");
+  grunt.loadNpmTasks("grunt-ts");
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.registerTask('default', [
-    //"ts",
+    "ts",
     'copy:*',
     'less:dist'
   ]);
