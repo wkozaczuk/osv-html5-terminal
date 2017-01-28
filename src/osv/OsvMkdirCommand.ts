@@ -14,7 +14,8 @@ export class OsvMkdirCommand extends OsvCommandBase {
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
       const path: string = commandArguments[commandArguments.length - 1];
-      const rpath: string = encodeURIComponent(path);
+      const resolvedPath = this.cmd.resolvePath(path);
+      const rpath: string = encodeURIComponent(resolvedPath);
       let basePath = OsvCommandBase.urlBase + "/file/" + rpath + "?op=MKDIRS&permission=0755";
 
       const createParents = options.contains("p") || options.contains("parents");

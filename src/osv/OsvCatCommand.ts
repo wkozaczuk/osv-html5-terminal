@@ -19,6 +19,8 @@ export class OsvCatCommand extends OsvCommandBase {
 
    handleExecutionSuccess(options: Set<string>, response: any) {
       this.cmd.displayOutput('', false);
+      //TODO escape HTML
+      //const escapedOutput =
       this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), false);
    }
 }
