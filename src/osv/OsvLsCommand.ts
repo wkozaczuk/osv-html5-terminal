@@ -79,9 +79,9 @@ export class OsvLsCommand extends OsvCommandBase {
       }
 
       if (longFormat) {
-         this.cmd.displayOutput('<table>', false);
+         let output = '<table>';
          if(thisDirectory) {
-            this.cmd.displayOutput(`<tr><td colspan="7">${thisDirectory}:</td></tr>`, false);
+            output = output + `<tr><td colspan="7">${thisDirectory}:</td></tr>`;
          }
          entries.forEach((entry) => {
             let directoryPrefix = entry.type == 'DIRECTORY' ? 'd' : '-';
@@ -96,7 +96,7 @@ export class OsvLsCommand extends OsvCommandBase {
             //TODO: Make it use with last year cut off logic tha would NOT show hour and minute
             let modificationDateTimeStr = modificationDateTime.toLocaleDateString('en-US', OsvLsCommand.LongDateTimeFormatOptions);
 
-            this.cmd.displayOutput('<tr>' +
+            output = output + '<tr>' +
                `<td>${directoryPrefix}${permissionsRwx}</td>` +
                `<td>${entry.replication}</td>` +
                `<td>${entry.owner}</td>` +
@@ -104,13 +104,15 @@ export class OsvLsCommand extends OsvCommandBase {
                `<td>${entry.length}</td>` +
                `<td>${modificationDateTimeStr.substr(0,modificationDateTimeStr.length-2)}</td>` +
                `<td>${entry.pathSuffix}</td>` +
-               '</tr>', false);
+               '</tr>';
          });
-         this.cmd.displayOutput('</table>', false);
+         output = output + '</table>';
+         this.cmd.displayOutput(output, true);
       }
       else {
-         this.cmd.displayOutput('', false);
-         entries.forEach((entry)=>this.cmd.displayOutput(entry.pathSuffix, false));
+         let output = '';
+         entries.forEach((entry)=>output = output + '<BR>' + entry.pathSuffix);
+         this.cmd.displayOutput(output, false)
       }
    }
 

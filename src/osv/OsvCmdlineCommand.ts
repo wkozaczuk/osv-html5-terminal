@@ -15,6 +15,6 @@ export class OsvCmdlineCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput(response.toString(), false);
+      this.cmd.displayOutput(response.toString(), true);
    }
 }

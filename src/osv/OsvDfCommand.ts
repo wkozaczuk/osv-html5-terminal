@@ -20,23 +20,24 @@ export class OsvDfCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput('<table>', false);
-      this.cmd.displayOutput('<tr>' +
-         '<td>Filesystem</td>' +
-         '<td>Total</td>' +
-         '<td>Used</td>' +
-         '<td>Use%</td>' +
-         '<td>Mounted on</td>' +
-         '</tr>', false);
+      let output = '<table>';
+      output = output + '<tr>' +
+         '<th>Filesystem</th>' +
+         '<th>Total</th>' +
+         '<th>Used</th>' +
+         '<th>Use%</th>' +
+         '<th>Mounted on</th>' +
+         '</tr>';
       response.forEach((entry) => {
-         this.cmd.displayOutput('<tr>' +
+         output = output + '<tr>' +
             '<td>' + entry.filesystem + '</td>' +
             '<td>' + entry.btotal + '</td>' +
             '<td>' + (entry.btotal - entry.bfree) + '</td>' +
             '<td>' + (100 - Math.round(100 * (entry.bfree / entry.btotal))) + '</td>' +
             '<td>' + entry.mount + '</td>' +
-            '</tr>', false);
+            '</tr>';
       });
-      this.cmd.displayOutput('</table>', false);
+      output = output + '</table>';
+      this.cmd.displayOutput(output, true);
    }
 }

@@ -28,7 +28,6 @@ export class OsvMkdirCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput('', false);
-      this.cmd.displayOutput("Directory created!", false);
+      this.cmd.displayOutput("Directory created!", true);
    }
 }

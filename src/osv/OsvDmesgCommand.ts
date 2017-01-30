@@ -15,6 +15,6 @@ export class OsvDmesgCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), false);
+      this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
    }
 }

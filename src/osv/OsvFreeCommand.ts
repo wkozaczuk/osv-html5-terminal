@@ -38,14 +38,14 @@ export class OsvFreeCommand extends OsvCommandBase {
    }
 
    private displayOutputTable(total:number,free:number) {
-      this.cmd.displayOutput('<table>', false);
-      this.cmd.displayOutput('<tr><td>&nbsp;</td><td>total</td><td>used</td><td>free</td></tr>',false);
-      this.cmd.displayOutput(`<tr><td>Mem</td><td>${total}</td><td>${total-free}</td><td>${free}</td></tr>`,false);
-      this.cmd.displayOutput('</table>', false);
+      let output = '<table>';
+      output = output + '<tr><td>&nbsp;</td><td>total</td><td>used</td><td>free</td></tr>';
+      output = output + `<tr><td>Mem</td><td>${total}</td><td>${total-free}</td><td>${free}</td></tr>`;
+      output = output + '</table>';
+      this.cmd.displayOutput(output, true);
    }
 
    private handleWrongData() {
-      this.cmd.displayOutput('', false);
-      this.cmd.displayOutput("Wrong data returned from server", false);
+      this.cmd.displayOutput("Wrong data returned from server", true);
    }
 }

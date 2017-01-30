@@ -24,7 +24,7 @@ export class OsvCdCommand extends OsvCommandBase {
          this.cmd.displayOutput(`Changed current directory to ${this.resolvedPath}`, true)
       }
       else {
-         this.cmd.displayOutput(`${this.resolvedPath} is not a directory`, false);
+         this.cmd.displayOutput(`${this.resolvedPath} is not a directory`, true);
       }
    }
 }

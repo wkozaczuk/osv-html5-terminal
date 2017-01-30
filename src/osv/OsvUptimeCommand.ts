@@ -34,12 +34,10 @@ export class OsvUptimeCommand extends OsvCommandBase {
          else
             upTimeText += ` ${upTimeMinutes} min `;//string.format(" %d min ", upminutes)
 
-         this.cmd.displayOutput('', false);
-         this.cmd.displayOutput(upTimeText, false);
+         this.cmd.displayOutput(upTimeText, true);
       }
       else {
-         this.cmd.displayOutput('', false);
-         this.cmd.displayOutput("Wrong data returned from server", false);
+         this.cmd.displayOutput("Wrong data returned from server", true);
       }
    }
 }

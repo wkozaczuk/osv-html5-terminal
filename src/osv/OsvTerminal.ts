@@ -19,6 +19,7 @@ import {OsvUptimeCommand} from "./OsvUptimeCommand";
 import {OsvFreeCommand} from "./OsvFreeCommand";
 import {OsvCdCommand} from "./OsvCdCommand";
 import {OsvPwdCommand} from "./OsvPwdCommand";
+import {OsvTopCommand} from "./OsvTopCommand";
 
 export class OsvTerminal extends Cmd {
    private currentPath:string = "/";
@@ -43,7 +44,8 @@ export class OsvTerminal extends Cmd {
             new OsvPwdCommand(),
             new OsvRebootCommand(),
             new OsvRmCommand(),
-            new OsvUptimeCommand()]
+            new OsvUptimeCommand(),
+            new OsvTopCommand()]
       })
    }
 

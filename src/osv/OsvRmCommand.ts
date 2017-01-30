@@ -20,7 +20,6 @@ export class OsvRmCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput('', false);
-      this.cmd.displayOutput("File deleted!", false);
+      this.cmd.displayOutput("File deleted!", true);
    }
 }
