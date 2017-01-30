@@ -123,7 +123,7 @@ export class OsvTopCommand extends OsvCommandBase {
          output = output + '</tr>';
       });
       output = output + '</table>';
-      this.cmd.displayOutput(output, true);
+      this.cmd.displayOutput(output, false);
    }
 
    private interpretThreads(response:any,columnNames:string[],showIdle:boolean):string[][] {
@@ -132,7 +132,7 @@ export class OsvTopCommand extends OsvCommandBase {
          threadsById:{}
       };
 
-      let idleThreadsById = {};
+      let idleThreads:OsvThread[] = [];
       let threadsList:OsvThread[] = response.list;
       //
       // Normalize and identify idle threads
@@ -143,14 +143,16 @@ export class OsvTopCommand extends OsvCommandBase {
 
          let isIdle = thread.name.indexOf("idle") == 0;
          if(isIdle) {
-            idleThreadsById[thread.id] = thread;
+            idleThreads.push(thread);
          }
 
-         if( isIdle && ! showIdle){
+         currentThreadState.threadsById[thread.id] = thread;
+         /*
+         if( isIdle && !showIdle){
          }
          else {
             currentThreadState.threadsById[thread.id] = thread;
-         }
+         }*/
       });
       //
       // Sort by time in ms particular thread spent on a CPU
@@ -162,28 +164,46 @@ export class OsvTopCommand extends OsvCommandBase {
          let thread1PreviousCpuMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread1.id]) || 0;
          let thread2PreviousCpuMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread2.id]) || 0;
 
-         return (thread1CurrentCpuMs - thread1PreviousCpuMs) - (thread2CurrentCpuMs - thread2PreviousCpuMs);
+         return (thread2CurrentCpuMs - thread2PreviousCpuMs) - (thread1CurrentCpuMs - thread1PreviousCpuMs);
       });
 
       //TODO: Global thread status (top-most line)
+      let cpuCount = 4; //TODO Needs to come from processors call
+      let statusLine = `${threadsList.length} threads on ${cpuCount} CPUs; `;
+
+      //TODO: Something wrong
+      let idles = [];
+      let totalIdle = 0;
+      idleThreads.forEach(thread=> {
+         let lastThreadMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread.id].time_ms) || 0;
+         let lastTimeMs = (this.lastThreadsState && this.lastThreadsState.time_ms) || 0;
+         let idle = (100 * (thread.cpu_ms - lastThreadMs)) / (currentThreadState.time_ms - lastTimeMs);
+         totalIdle += idle;
+         idles[thread.cpu] = idle.toFixed(0);
+      });
+
+      idles.forEach(idle=>statusLine = statusLine + idle + " ");
+      statusLine = statusLine + totalIdle.toFixed(0);
+      this.cmd.displayOutput(statusLine, true);
+
       //
       // Reformat and ...
+      let timeElapsedMs = (currentThreadState.time_ms - (this.lastThreadsState && this.lastThreadsState.time_ms || 0)) / 1000; //What if not
       let threadsTable = threadsList.map(thread => {
          return columnNames.map(name => {
             let columnDefinition:OsvThreadDefinition = OsvTopCommand.columns[name];
             let value = thread[columnDefinition.source];
 
-            if (columnDefinition.rate /* && prev*/) {
-               value = value - 0; //prev.list[id][column.source]
-               value = 0; //val / ((current.time_ms - prev.time_ms) / 1000)
+            if (columnDefinition.rate && this.lastThreadsState) {
+               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source]; //What if this is new thread
+               value = value / (timeElapsedMs);
             }
             else
-            if(columnDefinition.rateby /* && prev*/) {
-               value = value - 0; //prev.list[id][column.source]
-               /*if val ~= 0 then
-                val = val / (current.list[id][column.rateby] -
-                prev.list[id][column.rateby])
-                end */
+            if(columnDefinition.rateby && this.lastThreadsState) {
+               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source];
+               if(value) {
+                  value = value / (thread[columnDefinition.rateby] - this.lastThreadsState.threadsById[thread.id][columnDefinition.rateby]);
+               }
             }
 
             if(columnDefinition.multiplier) {
