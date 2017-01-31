@@ -55,7 +55,7 @@ export class OsvLsCommand extends OsvCommandBase {
                this.listDirectory(options,newResponse,nextSubdirectory);
                this.listSubdirectories(options, newResponse, nextSubdirectory, allSubdirectories)
             },
-            error: (response)=>this.handleExecutionError(response)
+            error: (newResponse)=>this.handleExecutionError(newResponse)
          });
       }
    }

@@ -130,7 +130,7 @@ export class Cmd {
    /**
     * Clears the screen
     */
-   private clearScreen() {
+   public clearScreen() {
       this.container.empty();
 
       this.output = $('<div/>')

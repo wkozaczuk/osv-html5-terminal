@@ -10,6 +10,7 @@ interface OsvThread {
    cpu: number|'-'      // Id of the CPU this thread is on currently
    switches: number     // ???
    cpu_ms: number       // Time this thread spent on CPU since it was created
+   cpu_ms_delta: number
    id: number
    stack_size: number
 }
@@ -26,6 +27,14 @@ interface OsvThreadDefinition {
 interface OsvThreadsState {
    time_ms:number
    threadsById:Object
+}
+
+interface OsvTopData {
+   threadsTable:string[][];
+   threadsCount:number;
+   idleThreadsCpu:number[];
+   totalIdle:number;
+   cpuCount:number;
 }
 
 export class OsvTopCommand extends OsvCommandBase {
@@ -113,20 +122,42 @@ export class OsvTopCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      let valuesTable = this.interpretThreads(response,OsvTopCommand.defaultColumnNames,false);
+      //let columnNames = OsvTopCommand.defaultColumnNames;
+      let columnNames = OsvTopCommand.allColumnNames;
+      let topData = this.interpretThreads(response,columnNames,false);
+
+      let statusLine = `${topData.threadsCount} threads on ${topData.cpuCount} CPUs; `;
+      topData.idleThreadsCpu.forEach(idle=>statusLine = statusLine + idle.toFixed(0) + "% ");
+      statusLine = statusLine + '% ' + topData.totalIdle.toFixed(0) + '%';
+
       let output = '<table><tr>';
-      OsvTopCommand.defaultColumnNames.forEach(name=>output = output + `<th>${name}</th>`);
+      columnNames.forEach(name=>output = output + `<th>${name}</th>`);
       output = output + '</tr>';
-      valuesTable.forEach(row=>{
-         output = output + '<tr>';
-         row.forEach(value=>output = output + `<td>${value}</td>`);
-         output = output + '</tr>';
+      let count = 0;
+      topData.threadsTable.forEach(row=>{
+         count ++;
+         if(count < 30) {
+            output = output + '<tr>';
+            row.forEach(value=>output = output + `<td>${value}</td>`);
+            output = output + '</tr>';
+         }
       });
       output = output + '</table>';
-      this.cmd.displayOutput(output, false);
+      this.cmd.clearScreen();
+      this.cmd.displayOutput(statusLine + '<BR>' + output, false);
+      //
+      // Set to redo in 2 seconds
+      setTimeout(()=>{
+         $.ajax({
+            url: OsvCommandBase.urlBase + "/os/threads",
+            method: this.method,
+            success: (newResponse)=>this.handleExecutionSuccess(options,newResponse),
+            error: (newResponse)=>this.handleExecutionError(newResponse)
+         });
+      },2000);
    }
 
-   private interpretThreads(response:any,columnNames:string[],showIdle:boolean):string[][] {
+   private interpretThreads(response:any,columnNames:string[],showIdle:boolean):OsvTopData {
       let currentThreadState:OsvThreadsState = {
          time_ms:response.time_ms,
          threadsById:{}
@@ -140,6 +171,12 @@ export class OsvTopCommand extends OsvCommandBase {
          if(thread.cpu == 0xffffffff) {
             thread.cpu = '-'
          }
+         //
+         // Calculate delta of cpu_ms => how much time this thread spent on a cpu
+         let previousCpuMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread.id] &&
+            this.lastThreadsState.threadsById[thread.id].cpu_ms) || 0;
+
+         thread.cpu_ms_delta = thread.cpu_ms - previousCpuMs;
 
          let isIdle = thread.name.indexOf("idle") == 0;
          if(isIdle) {
@@ -147,49 +184,32 @@ export class OsvTopCommand extends OsvCommandBase {
          }
 
          currentThreadState.threadsById[thread.id] = thread;
-         /*
-         if( isIdle && !showIdle){
-         }
-         else {
-            currentThreadState.threadsById[thread.id] = thread;
-         }*/
       });
       //
       // Sort by time in ms particular thread spent on a CPU
       threadsList.sort((thread1,thread2) => {
-         let thread1CurrentCpuMs = thread1.cpu_ms;
-         let thread2CurrentCpuMs = thread2.cpu_ms;
-         //
-         // If it's a new thread, take 0 for its previous cpu_ms
-         let thread1PreviousCpuMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread1.id]) || 0;
-         let thread2PreviousCpuMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread2.id]) || 0;
-
-         return (thread2CurrentCpuMs - thread2PreviousCpuMs) - (thread1CurrentCpuMs - thread1PreviousCpuMs);
+         return thread2.cpu_ms_delta - thread1.cpu_ms_delta;
       });
 
       //TODO: Global thread status (top-most line)
       let cpuCount = 4; //TODO Needs to come from processors call
-      let statusLine = `${threadsList.length} threads on ${cpuCount} CPUs; `;
 
       //TODO: Something wrong
       let idles = [];
       let totalIdle = 0;
       idleThreads.forEach(thread=> {
-         let lastThreadMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread.id].time_ms) || 0;
+         let lastThreadMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread.id].cpu_ms) || 0;
          let lastTimeMs = (this.lastThreadsState && this.lastThreadsState.time_ms) || 0;
          let idle = (100 * (thread.cpu_ms - lastThreadMs)) / (currentThreadState.time_ms - lastTimeMs);
          totalIdle += idle;
-         idles[thread.cpu] = idle.toFixed(0);
+         idles[thread.cpu] = idle;
       });
-
-      idles.forEach(idle=>statusLine = statusLine + idle + " ");
-      statusLine = statusLine + totalIdle.toFixed(0);
-      this.cmd.displayOutput(statusLine, true);
-
       //
       // Reformat and ...
-      let timeElapsedMs = (currentThreadState.time_ms - (this.lastThreadsState && this.lastThreadsState.time_ms || 0)) / 1000; //What if not
-      let threadsTable = threadsList.map(thread => {
+      let timeElapsedMs = (currentThreadState.time_ms - ((this.lastThreadsState && this.lastThreadsState.time_ms) || 0)) / 1000; //What if not
+      let threadsTable = threadsList
+         .filter(thread => thread.name.indexOf("idle") != 0)
+         .map(thread => {
          return columnNames.map(name => {
             let columnDefinition:OsvThreadDefinition = OsvTopCommand.columns[name];
             let value = thread[columnDefinition.source];
@@ -206,11 +226,11 @@ export class OsvTopCommand extends OsvCommandBase {
                }
             }
 
-            if(columnDefinition.multiplier) {
+            if(columnDefinition.multiplier != undefined) {
                value = value * columnDefinition.multiplier;
             }
 
-            if(columnDefinition.numberOfDecimals) {
+            if(columnDefinition.numberOfDecimals != undefined) {
                return value.toFixed(columnDefinition.numberOfDecimals);
             }
             else {
@@ -218,7 +238,13 @@ export class OsvTopCommand extends OsvCommandBase {
             }
          });
       });
-
-      return threadsTable;
+      this.lastThreadsState = currentThreadState;
+      return {
+         threadsTable:threadsTable,
+         threadsCount:threadsList.length,
+         idleThreadsCpu:idles,
+         totalIdle:totalIdle,
+         cpuCount:cpuCount
+      };
    }
 }
