@@ -16,6 +16,11 @@ export class OsvPwdCommand implements Command {
       this.cmd = cmd;
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    execute(input: string) {
       this.cmd.displayOutput(`${this.cmd.getCurrentPath()}`, true);
    }

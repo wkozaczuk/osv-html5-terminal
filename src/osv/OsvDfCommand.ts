@@ -19,6 +19,11 @@ export class OsvDfCommand extends OsvCommandBase {
       }
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    handleExecutionSuccess(options: Set<string>, response: any) {
       let output = '<table>';
       output = output + '<tr>' +

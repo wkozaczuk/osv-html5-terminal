@@ -1,5 +1,6 @@
 import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
+import {KeyPressedSubscriber} from "../cmd/Cmd";
 
 interface OsvThread {
    status:string
@@ -34,10 +35,9 @@ interface OsvTopData {
    threadsCount:number;
    idleThreadsCpu:number[];
    totalIdle:number;
-   cpuCount:number;
 }
 
-export class OsvTopCommand extends OsvCommandBase {
+export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscriber {
    private static columns:Object = {
       "ID": {
          name: "ID",
@@ -112,6 +112,8 @@ export class OsvTopCommand extends OsvCommandBase {
       "sw", "sw/s", "us/sw", "preempt","pre/s", "mig", "mig/s", "NAME", "STATUS"];
 
    private lastThreadsState:OsvThreadsState;
+   private stop = false;
+   private processorsCount:number = 0;
 
    typed() {
       return 'top';
@@ -122,17 +124,35 @@ export class OsvTopCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/threads";
+      return OsvCommandBase.urlBase + "/hardware/processor/count";
+   }
+
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
+      this.processorsCount = response;
+      this.stop = false;
+      this.cmd.subscribeToKeyPressed(this);
+
+      $.ajax({
+         url: OsvCommandBase.urlBase + "/os/threads",
+         method: this.method,
+         success: (newResponse)=>this.handleThreadsResponse(options,newResponse),
+         error: (newResponse)=>this.handleExecutionError(newResponse)
+      });
+   }
+
+   private handleThreadsResponse(options: Set<string>, response: any) {
       let columnNames = OsvTopCommand.defaultColumnNames;
       if(options.contains("s") || options.contains("switches")) {
          columnNames = OsvTopCommand.allColumnNames;
       }
       let topData = this.interpretThreads(response,columnNames,false);
 
-      let statusLine = `${topData.threadsCount} threads on ${topData.cpuCount} CPUs; `;
+      let statusLine = `${topData.threadsCount} threads on ${this.processorsCount} CPUs; `;
       topData.idleThreadsCpu.forEach(idle=>statusLine = statusLine + idle.toFixed(0) + "% ");
       statusLine = statusLine + '% ' + topData.totalIdle.toFixed(0) + '%';
 
@@ -142,7 +162,7 @@ export class OsvTopCommand extends OsvCommandBase {
       let count = 0;
       topData.threadsTable.forEach(row=>{
          count ++;
-         if(count < 33) {
+         if(count < 32) {  //TODO Come up with some way to calculate how manhy lines fit the screen/area
             output = output + '<tr>';
             row.forEach(value=>output = output + `<td>${value}</td>`);
             output = output + '</tr>';
@@ -150,17 +170,27 @@ export class OsvTopCommand extends OsvCommandBase {
       });
       output = output + '</table>';
       this.cmd.clearScreen();
-      this.cmd.displayOutput(statusLine + '<BR>' + output, false);
+      this.cmd.displayOutput(`${statusLine}<BR>${output}<BR>Press q to quit ...`, false);
       //
       // Set to redo in 2 seconds
-      setTimeout(()=>{
-         $.ajax({
-            url: OsvCommandBase.urlBase + "/os/threads",
-            method: this.method,
-            success: (newResponse)=>this.handleExecutionSuccess(options,newResponse),
-            error: (newResponse)=>this.handleExecutionError(newResponse)
-         });
-      },2000);
+      if(!this.stop) {
+         setTimeout(()=>{
+            $.ajax({
+               url: OsvCommandBase.urlBase + "/os/threads",
+               method: this.method,
+               success: (newResponse)=>this.handleThreadsResponse(options,newResponse),
+               error: (newResponse)=>this.handleExecutionError(newResponse)
+            });
+         },2000);
+      }
+   }
+
+   onKeyPressed(inputString:string,keyPressed:number) {
+      console.log(`Pressed: ${keyPressed} with input: [${inputString}]`);
+      if(keyPressed == 81) {
+         this.stop = true;
+         this.cmd.unSubscribeFromKeyPressed(this);
+      }
    }
 
    private interpretThreads(response:any,columnNames:string[],showIdle:boolean):OsvTopData {
@@ -202,10 +232,6 @@ export class OsvTopCommand extends OsvCommandBase {
          }
       });
 
-      //TODO: Global thread status (top-most line)
-      let cpuCount = 4; //TODO Needs to come from processors call
-
-      //TODO: Something wrong
       let idles = [];
       let totalIdle = 0;
       idleThreads.forEach(thread=> {
@@ -254,8 +280,7 @@ export class OsvTopCommand extends OsvCommandBase {
          threadsTable:threadsTable,
          threadsCount:threadsList.length,
          idleThreadsCpu:idles,
-         totalIdle:totalIdle,
-         cpuCount:cpuCount
+         totalIdle:totalIdle
       };
    }
 }

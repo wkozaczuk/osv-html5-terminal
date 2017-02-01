@@ -16,6 +16,11 @@ export class OsvPowerOffCommand extends OsvCommandBase {
       return OsvCommandBase.urlBase + "/os/poweroff";
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    handleExecutionSuccess(options: Set<string>, response: any) {
       this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
    }

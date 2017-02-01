@@ -9,6 +9,7 @@
  */
 
 import {Stack} from "./Stack";
+import Set from "typescript-collections/dist/lib/Set";
 
 /**
  * Describes configuration of the command
@@ -31,6 +32,10 @@ export interface Command {
    setCmd(cmd: Cmd);
    matches(input: string): boolean;
    execute(input: string);
+}
+
+export interface KeyPressedSubscriber {
+   onKeyPressed(inputString:string,keyPressed:number);
 }
 
 /**
@@ -69,6 +74,9 @@ export class Cmd {
    private output: JQuery;
    private promptElement: JQuery;
    private wrapper: JQuery;
+
+   private keyPressedSubscribers:Set<KeyPressedSubscriber> =
+      new Set<KeyPressedSubscriber>();
 
    constructor(userConfiguration?: any) {
       $.extend(this.configuration, userConfiguration);
@@ -222,12 +230,22 @@ export class Cmd {
       this.input.focus();
    }
 
+   public subscribeToKeyPressed(subscriber:KeyPressedSubscriber) {
+      this.keyPressedSubscribers.add(subscriber);
+   }
+
+   public unSubscribeFromKeyPressed(subscriber:KeyPressedSubscriber) {
+      this.keyPressedSubscribers.remove(subscriber);
+   }
+
    /**
     * Handle keypresses
     */
    private handleKeyPress(event: KeyboardEvent) {
       const keyCode = event.keyCode || event.which;
       const inputString = this.input.val();
+
+      this.keyPressedSubscribers.forEach(subscriber=>subscriber.onKeyPressed(inputString,keyCode))
 
       if (keyCode === 9) { //tab
          this.tabComplete(inputString);

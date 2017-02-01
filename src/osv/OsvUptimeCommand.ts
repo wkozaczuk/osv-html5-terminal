@@ -14,6 +14,11 @@ export class OsvUptimeCommand extends OsvCommandBase {
       return OsvCommandBase.urlBase + "/os/uptime";
    }
 
+   help() {
+      return "Usage: uptime <BR><BR>\
+      Print how long the system has been running.";
+   }
+
    handleExecutionSuccess(options: Set<string>, response: any) {
 
       if(typeof(response) === "number") {

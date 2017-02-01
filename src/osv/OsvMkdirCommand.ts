@@ -12,6 +12,11 @@ export class OsvMkdirCommand extends OsvCommandBase {
       return input.indexOf('mkdir') === 0;
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    buildUrl(options: Set<string>, commandArguments: string[]) {
       const path: string = commandArguments[commandArguments.length - 1];
       const resolvedPath = this.cmd.resolvePath(path);

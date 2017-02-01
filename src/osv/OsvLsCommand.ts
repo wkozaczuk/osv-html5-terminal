@@ -15,6 +15,11 @@ export class OsvLsCommand extends OsvCommandBase {
       return input.indexOf('ls') === 0;
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    buildUrl(options: Set<string>, commandArguments: string[]): string {
       if (commandArguments.length > 0) {
          this.path = this.cmd.resolvePath(commandArguments[commandArguments.length - 1]);

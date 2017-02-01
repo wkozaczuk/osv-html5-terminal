@@ -19,6 +19,11 @@ export class OsvRmCommand extends OsvCommandBase {
       return OsvCommandBase.urlBase + "/file/" + rpath + "?op=DELETE";
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    handleExecutionSuccess(options: Set<string>, response: any) {
       this.cmd.displayOutput("File deleted!", true);
    }

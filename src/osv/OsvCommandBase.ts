@@ -22,6 +22,8 @@ export abstract class OsvCommandBase implements Command {
 
    abstract handleExecutionSuccess(options: Set<string>, response: any);
 
+   abstract help():string;
+
    handleExecutionError(response: any) {
       let text = (response.responseText || "").replace(/\n/g, "<BR>");
       this.cmd.displayOutput("Failed: " + text);
@@ -59,11 +61,16 @@ export abstract class OsvCommandBase implements Command {
       // Add remaining words as arguments
       commandArguments.concat(words);
 
-      $.ajax({
-         url: this.buildUrl(options, commandArguments),
-         method: this.method,
-         success: (response)=>this.handleExecutionSuccess(options, response),
-         error: (response)=>this.handleExecutionError(response)
-      });
+      if(options.contains('help')) {
+         this.cmd.displayOutput(this.help());
+      }
+      else {
+         $.ajax({
+            url: this.buildUrl(options, commandArguments),
+            method: this.method,
+            success: (response)=>this.handleExecutionSuccess(options, response),
+            error: (response)=>this.handleExecutionError(response)
+         });
+      }
    }
 }

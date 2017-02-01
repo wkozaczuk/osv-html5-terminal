@@ -14,6 +14,11 @@ export class OsvFreeCommand extends OsvCommandBase {
       return OsvCommandBase.urlBase + "/os/memory/total";
    }
 
+   help() {
+      return "Usage: uptime <BR>\
+      Print how long the system has been running.";
+   }
+
    handleExecutionSuccess(options: Set<string>, response: any) {
 
       if(typeof(response) === "number") {

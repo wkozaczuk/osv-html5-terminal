@@ -17,6 +17,11 @@ export class OsvCatCommand extends OsvCommandBase {
       return OsvCommandBase.urlBase + "/file/" + rpath + "?op=GET";
    }
 
+   help() {
+      return "Usage: cat [FILE]... <BR><BR>\
+      Concatenate FILE(s), or standard input, to standard output.";
+   }
+
    handleExecutionSuccess(options: Set<string>, response: any) {
       //TODO escape HTML
       //const escapedOutput =
