@@ -64,6 +64,10 @@ export class OsvTopCommand extends OsvCommandBase {
          name: "NAME",
          source: "name"
       },
+      "STATUS": {
+         name: "STATUS",
+         source: "status"
+      },
       "sw": {
          name: "sw",
          source: "switches",
@@ -103,9 +107,9 @@ export class OsvTopCommand extends OsvCommandBase {
       },
    };
 
-   private static defaultColumnNames = ["ID", "CPU", "%CPU", "TIME", "NAME"];
+   private static defaultColumnNames = ["ID", "CPU", "%CPU", "TIME", "NAME", "STATUS"];
    private static allColumnNames = ["ID", "CPU", "%CPU", "TIME",
-      "sw", "sw/s", "us/sw", "preempt","pre/s", "mig", "mig/s", "NAME"];
+      "sw", "sw/s", "us/sw", "preempt","pre/s", "mig", "mig/s", "NAME", "STATUS"];
 
    private lastThreadsState:OsvThreadsState;
 
@@ -122,8 +126,10 @@ export class OsvTopCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
-      //let columnNames = OsvTopCommand.defaultColumnNames;
-      let columnNames = OsvTopCommand.allColumnNames;
+      let columnNames = OsvTopCommand.defaultColumnNames;
+      if(options.contains("s") || options.contains("switches")) {
+         columnNames = OsvTopCommand.allColumnNames;
+      }
       let topData = this.interpretThreads(response,columnNames,false);
 
       let statusLine = `${topData.threadsCount} threads on ${topData.cpuCount} CPUs; `;
@@ -136,7 +142,7 @@ export class OsvTopCommand extends OsvCommandBase {
       let count = 0;
       topData.threadsTable.forEach(row=>{
          count ++;
-         if(count < 30) {
+         if(count < 33) {
             output = output + '<tr>';
             row.forEach(value=>output = output + `<td>${value}</td>`);
             output = output + '</tr>';
@@ -188,7 +194,12 @@ export class OsvTopCommand extends OsvCommandBase {
       //
       // Sort by time in ms particular thread spent on a CPU
       threadsList.sort((thread1,thread2) => {
-         return thread2.cpu_ms_delta - thread1.cpu_ms_delta;
+         if(thread2.cpu_ms_delta != thread1.cpu_ms_delta) {
+            return thread2.cpu_ms_delta - thread1.cpu_ms_delta;
+         }
+         else {
+            return thread2.cpu_ms - thread1.cpu_ms;
+         }
       });
 
       //TODO: Global thread status (top-most line)
