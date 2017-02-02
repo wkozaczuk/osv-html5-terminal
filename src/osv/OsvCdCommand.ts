@@ -3,9 +3,13 @@ import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvCdCommand extends OsvCommandBase {
    private resolvedPath:string;
-   typed() {
-      return 'cd';
-   }
+
+   typed:string = 'cd';
+
+   description:string = 'change the shell working directory';
+
+   help:string = "cd - change the shell working directory<BR><BR>\
+      Usage: cd <path>";
 
    matches(input: string) {
       return input.indexOf('cd') === 0;
@@ -16,11 +20,6 @@ export class OsvCdCommand extends OsvCommandBase {
       this.resolvedPath = this.cmd.resolvePath(path);
       const rpath: string = encodeURIComponent(this.resolvedPath);
       return OsvCommandBase.urlBase + "/file/" + rpath + "?op=GETFILESTATUS";
-   }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

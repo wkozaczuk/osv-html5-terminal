@@ -14,15 +14,15 @@ export abstract class OsvCommandBase implements Command {
 
    method: string = "GET";
 
-   abstract typed():string
+   abstract readonly typed:string;
+   abstract readonly description:string;
+   abstract readonly help:string;
 
    abstract matches(input: string): boolean;
 
    abstract buildUrl(options: Set<string>, commandArguments: string[]): string
 
    abstract handleExecutionSuccess(options: Set<string>, response: any);
-
-   abstract help():string;
 
    handleExecutionError(response: any) {
       let text = (response.responseText || "").replace(/\n/g, "<BR>");
@@ -62,7 +62,7 @@ export abstract class OsvCommandBase implements Command {
       commandArguments.concat(words);
 
       if(options.contains('help')) {
-         this.cmd.displayOutput(this.help());
+         this.cmd.displayOutput(this.help);
       }
       else {
          $.ajax({

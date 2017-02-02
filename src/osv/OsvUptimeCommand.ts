@@ -2,9 +2,12 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvUptimeCommand extends OsvCommandBase {
-   typed() {
-      return 'uptime';
-   }
+   typed:string = 'uptime';
+
+   description:string = 'tell how long the system has been running';
+
+   help:string = 'Usage: uptime <BR><BR>\
+      Print how long the system has been running.';
 
    matches(input: string) {
       return input.indexOf('uptime') === 0;
@@ -12,11 +15,6 @@ export class OsvUptimeCommand extends OsvCommandBase {
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
       return OsvCommandBase.urlBase + "/os/uptime";
-   }
-
-   help() {
-      return "Usage: uptime <BR><BR>\
-      Print how long the system has been running.";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

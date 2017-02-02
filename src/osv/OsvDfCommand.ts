@@ -2,9 +2,13 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvDfCommand extends OsvCommandBase {
-   typed() {
-      return 'df';
-   }
+   typed:string = 'df';
+
+   description:string = 'report file system disk space usage';
+
+   help:string = 'df - report file system disk space usage<BR><BR>\
+      Usage: df [FILE]... <BR><BR>\
+      Show information about the file system mount, or for all mounts by default.';
 
    matches(input: string) {
       return input.indexOf('df') === 0;
@@ -17,11 +21,6 @@ export class OsvDfCommand extends OsvCommandBase {
       else {
          return OsvCommandBase.urlBase + "/fs/df";
       }
-   }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

@@ -4,9 +4,11 @@ import Set from "typescript-collections/dist/lib/Set";
 export class OsvRmCommand extends OsvCommandBase {
    method: string = "DELETE";
 
-   typed() {
-      return 'rm';
-   }
+   typed:string = 'rm';
+
+   description:string = 'remove files or directories';
+
+   help:string = 'Usage: rm FILE...';
 
    matches(input: string) {
       return input.indexOf('rm') === 0;
@@ -17,11 +19,6 @@ export class OsvRmCommand extends OsvCommandBase {
       const resolvedPath = this.cmd.resolvePath(path);
       const rpath: string = encodeURIComponent(resolvedPath);
       return OsvCommandBase.urlBase + "/file/" + rpath + "?op=DELETE";
-   }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

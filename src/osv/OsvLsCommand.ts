@@ -7,17 +7,23 @@ export class OsvLsCommand extends OsvCommandBase {
    private static LongDateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
    //private OverYearDateTimeFormatOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
-   typed() {
-      return 'ls';
-   }
+   typed:string = 'ls';
+
+   description:string = 'list directory contents';
+
+   help:string = 'ls - list directory contents<BR><BR>\
+      Usage: ls [OPTION]... [FILE]... <BR><BR>\
+      List information  about the FILEs (the current directory by default). <BR><BR>\
+      Options: <BR><BR>\
+         -a, --all        do not ignore entries starting with . <BR>\
+         -l               use a long listing format <BR>\
+         -r, --reverse    reverse order while sorting <BR>\
+         -R, --recursive  list subdirectories recursively  <BR>\
+         -t               sort by modification time, newest first <BR>\
+         --help       display this help and exit';
 
    matches(input: string): boolean {
       return input.indexOf('ls') === 0;
-   }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]): string {

@@ -2,9 +2,12 @@ import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 export class OsvFreeCommand extends OsvCommandBase {
-   typed() {
-      return 'free';
-   }
+   typed:string = 'free';
+
+   description:string = 'display amount of free and used memory in system';
+
+   help:string = 'Usage: free<BR><BR>\
+      Print OSv memory usage.';
 
    matches(input: string) {
       return input.indexOf('free') === 0;
@@ -12,11 +15,6 @@ export class OsvFreeCommand extends OsvCommandBase {
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
       return OsvCommandBase.urlBase + "/os/memory/total";
-   }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

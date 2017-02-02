@@ -4,9 +4,12 @@ import {OsvTerminal} from "./OsvTerminal";
 export class OsvPwdCommand implements Command {
    private cmd:OsvTerminal;
 
-   typed() {
-      return 'pwd';
-   }
+   typed:string = 'pwd';
+
+   description:string = 'show the shell working directory';
+
+   help:string = "pwd - show the shell working directory<BR><BR>\
+      Usage: pwd";
 
    matches(input: string) {
       return input.indexOf('pwd') === 0;
@@ -14,11 +17,6 @@ export class OsvPwdCommand implements Command {
 
    setCmd(cmd: OsvTerminal) {
       this.cmd = cmd;
-   }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
    }
 
    execute(input: string) {

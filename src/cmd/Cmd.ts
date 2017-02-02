@@ -28,7 +28,8 @@ interface CmdConfiguration {
  * Describes a command that can be executed to show some input
  */
 export interface Command {
-   typed():string;
+   readonly description:string;
+   readonly typed:string;
    setCmd(cmd: Cmd);
    matches(input: string): boolean;
    execute(input: string);

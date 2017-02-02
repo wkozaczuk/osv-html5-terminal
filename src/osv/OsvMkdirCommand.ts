@@ -4,19 +4,20 @@ import Set from "typescript-collections/dist/lib/Set";
 export class OsvMkdirCommand extends OsvCommandBase {
    method: string = "PUT";
 
-   typed() {
-      return 'mkdir';
-   }
+   typed:string = 'mkdir';
+
+   description:string = 'make directories';
+
+   help:string = 'mkdir - make directories<BR><BR>\
+      Usage: mkdir [OPTION]... DIRECTORY... <BR><BR>\
+      Create the DIRECTORY(ies). <BR><BR>\
+      Options:<BR><BR>\
+         -p, --parents  make parent directories as needed';
 
    matches(input: string) {
       return input.indexOf('mkdir') === 0;
    }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
-   }
-
+   
    buildUrl(options: Set<string>, commandArguments: string[]) {
       const path: string = commandArguments[commandArguments.length - 1];
       const resolvedPath = this.cmd.resolvePath(path);

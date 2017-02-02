@@ -1,12 +1,17 @@
 import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
+//TODO: Improve by showing 'rebooting ...' and checking if some status calls returns 200
+// to show that it is back online
 export class OsvRebootCommand extends OsvCommandBase {
    method: string = "POST";
 
-   typed() {
-      return 'reboot';
-   }
+   typed:string = 'reboot';
+
+   description:string = 'reboot an OSv instance';
+
+   help:string = 'Usage: reboot<BR><BR>\
+      Reboot the instance.';
 
    matches(input: string) {
       return input.indexOf('reboot') === 0;
@@ -15,12 +20,7 @@ export class OsvRebootCommand extends OsvCommandBase {
    buildUrl(options: Set<string>, commandArguments: string[]) {
       return OsvCommandBase.urlBase + "/os/reboot";
    }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
-   }
-
+   
    handleExecutionSuccess(options: Set<string>, response: any) {
       this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
    }

@@ -115,9 +115,18 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
    private stop = false;
    private processorsCount:number = 0;
 
-   typed() {
-      return 'top';
-   }
+   typed:string = 'top';
+
+   description:string = 'display OSv threads';
+
+   help:string = 'Usage: top<BR><BR>\
+      Show thread information >BR><BR>\
+      Options: <BR><BR>\
+         -l, --lines=[LINES]     Force number of lines to display (default: try to fit to display)<BR>\
+         -i, --idle              Show idle threads in list<BR>\
+         -s, --switches          Show switches<BR>\
+         -p, --period=[SECONDS]  Refresh interval (in seconds)<BR>\
+         -h, --help              Display this help and exit';
 
    matches(input: string) {
       return input.indexOf('top') === 0;
@@ -126,12 +135,7 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
    buildUrl(options: Set<string>, commandArguments: string[]) {
       return OsvCommandBase.urlBase + "/hardware/processor/count";
    }
-
-   help() {
-      return "Usage: uptime <BR>\
-      Print how long the system has been running.";
-   }
-
+   
    handleExecutionSuccess(options: Set<string>, response: any) {
       this.processorsCount = response;
       this.stop = false;
