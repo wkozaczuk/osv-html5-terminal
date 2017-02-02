@@ -92,7 +92,7 @@ export class Cmd {
                this.remoteCommands = data;
                this.allCommands = $.merge(this.remoteCommands, this.localCommands);
                this.configuration.executableCommands.forEach((command)=> {
-                  this.allCommands.push(command.typed());
+                  this.allCommands.push(command.typed);
                });
 
             }
@@ -448,6 +448,13 @@ export class Cmd {
             this.commandsStack.empty();
             this.commandsStack.reset();
             this.displayOutput('Command history cleared. ');
+            break;
+
+         case 'help':
+            let helpOutput = '<table><tr><th>COMMAND</th><th>DESCRIPTION</th></tr>';
+            this.configuration.executableCommands.forEach(command=>helpOutput+=`<tr><td>${command.typed}</td><td>${command.description}</td></tr>`);
+            helpOutput += '</table>';
+            this.displayOutput(helpOutput);
             break;
 
          case 'invert':
