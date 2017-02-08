@@ -22,6 +22,7 @@ interface CmdConfiguration {
    readonly selector: string;
    readonly unknownCmd: string;
    readonly typewriterTime: number;
+   readonly afterInitialized?: () => {}
 }
 
 /**
@@ -119,6 +120,9 @@ export class Cmd {
       });
 
       console.log("Constructor: " + this.allCommands.length);
+      if(this.configuration.afterInitialized) {
+         this.configuration.afterInitialized();
+      }
    }
 
    /**

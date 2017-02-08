@@ -68,7 +68,7 @@ export abstract class OsvCommandBase implements Command {
          $.ajax({
             url: this.buildUrl(options, commandArguments),
             method: this.method,
-            timeout: 5000,
+            timeout: 1000,
             success: (response)=>this.handleExecutionSuccess(options, response),
             error: (response)=>this.handleExecutionError(response)
          });

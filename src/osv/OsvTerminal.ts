@@ -48,7 +48,21 @@ export class OsvTerminal extends Cmd {
             new OsvRmCommand(),
             new OsvUptimeCommand(),
             new OsvTopCommand(),
-            new OsvConnectCommand()]
+            new OsvConnectCommand()],
+         afterInitialized: () => {
+            let defaultInstanceSchemeHostPort = "http://localhost:8000";
+            $.ajax({
+               url: `${defaultInstanceSchemeHostPort}/os/name`,
+               timeout: 1000,
+               success: ()=>{
+                  $("#status").html(`Connected to ${defaultInstanceSchemeHostPort}`);
+                  this.displayOutput(`Successfully connected to ${defaultInstanceSchemeHostPort}`, true);
+               },
+               error: ()=>{
+                  $("#status").html(`<span class="red_error">Failed to connect to ${defaultInstanceSchemeHostPort}</span>`);
+               }
+            });
+         }
       })
    }
 
