@@ -46,6 +46,9 @@ Verified to work in Firefox, Safari and with some limitations in Chrome.
 
 All commands support --help option.
 
+### Screenshot
+[Example](screenshot.png)
+
 ### Improvements
 - Functionality
     - Add commands
