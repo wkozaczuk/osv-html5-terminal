@@ -12,6 +12,7 @@ The command line handling logic converted to Typescript from JS project https://
 
 ##### Run locally
 * grunt connect
+  * connect to http://localhost:8001 in the browser
 
 ### Motivation
 OSv comes with an httpserver module that serves REST API. It also comes with lua-based cli 
@@ -20,19 +21,25 @@ module that provides shell-like (or ssh-like) command line interface to running 
 So instead of command line program this HTML5 app provides similar functionality but instead 
 in a browser so it can be executed anywhere without having to build cli executable for target OS.
 
+Verified to work in Firefox, Safari and with some limitations in Chrome.
+
 ### Functionality
 ##### Commands
 * cat	
+* cls
+* cd
 * cmdline	
-* df		
-* free	
-* mkdir	
-* pwd	
-* cd		
+* connect
 * date	
+* df		
 * dmesg	
+* free	
+* help
 * ls		
+* mkdir	
 * poweroff	
+* pwd	
+* reboot
 * rm		
 * top	
 * uptime
@@ -50,9 +57,8 @@ All commands support --help option.
             - mount
             - unmount
             - etc
-    - edit file (cat and then put)
+    - ability to edit file (cat and then put)
     - path completion when ls, cd, etc
-    - connect to specific OSv instance
     - HTTPS with client certificate - figure out 
 - Refactoring
     - extract OSv API abstraction
