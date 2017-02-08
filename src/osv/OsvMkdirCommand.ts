@@ -22,7 +22,7 @@ export class OsvMkdirCommand extends OsvCommandBase {
       const path: string = commandArguments[commandArguments.length - 1];
       const resolvedPath = this.cmd.resolvePath(path);
       const rpath: string = encodeURIComponent(resolvedPath);
-      let basePath = OsvCommandBase.urlBase + "/file/" + rpath + "?op=MKDIRS&permission=0755";
+      let basePath = this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=MKDIRS&permission=0755";
 
       const createParents = options.contains("p") || options.contains("parents");
       if(createParents) {

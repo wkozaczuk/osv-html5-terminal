@@ -18,7 +18,7 @@ export class OsvRebootCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/reboot";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/reboot";
    }
    
    handleExecutionSuccess(options: Set<string>, response: any) {

@@ -14,7 +14,7 @@ export class OsvCmdlineCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/cmdline";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/cmdline";
    }
    
    handleExecutionSuccess(options: Set<string>, response: any) {

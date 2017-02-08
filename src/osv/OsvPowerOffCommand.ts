@@ -16,7 +16,7 @@ export class OsvPowerOffCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/poweroff";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/poweroff";
    }
    
    handleExecutionSuccess(options: Set<string>, response: any) {

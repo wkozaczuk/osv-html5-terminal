@@ -9,7 +9,6 @@ import Set from "typescript-collections/dist/lib/Set";
 import {OsvTerminal} from "./OsvTerminal";
 
 export abstract class OsvCommandBase implements Command {
-   protected static urlBase = "http://localhost:8000";
    protected cmd: OsvTerminal;
 
    method: string = "GET";
@@ -25,8 +24,9 @@ export abstract class OsvCommandBase implements Command {
    abstract handleExecutionSuccess(options: Set<string>, response: any);
 
    handleExecutionError(response: any) {
-      let text = (response.responseText || "").replace(/\n/g, "<BR>");
-      this.cmd.displayOutput("Failed: " + text);
+      console.log(response);
+      let text = (response.responseText || response.statusText ||  "").replace(/\n/g, "<BR>");
+      this.cmd.displayOutput(`<span class="red_error">Failed due to: ${text}</span>`);
    }
 
    setCmd(cmd: OsvTerminal) {
@@ -68,6 +68,7 @@ export abstract class OsvCommandBase implements Command {
          $.ajax({
             url: this.buildUrl(options, commandArguments),
             method: this.method,
+            timeout: 5000,
             success: (response)=>this.handleExecutionSuccess(options, response),
             error: (response)=>this.handleExecutionError(response)
          });

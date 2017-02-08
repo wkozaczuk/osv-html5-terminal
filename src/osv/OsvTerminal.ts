@@ -20,8 +20,10 @@ import {OsvFreeCommand} from "./OsvFreeCommand";
 import {OsvCdCommand} from "./OsvCdCommand";
 import {OsvPwdCommand} from "./OsvPwdCommand";
 import {OsvTopCommand} from "./OsvTopCommand";
+import {OsvConnectCommand} from "./OsvConnectCommand";
 
 export class OsvTerminal extends Cmd {
+   private instanceSchemeHostPort:string = "http://localhost:8000";
    private currentPath:string = "/";
    private parentPathRegex:RegExp = /\/[^\/]+\/\.\.\//g;
 
@@ -45,7 +47,8 @@ export class OsvTerminal extends Cmd {
             new OsvRebootCommand(),
             new OsvRmCommand(),
             new OsvUptimeCommand(),
-            new OsvTopCommand()]
+            new OsvTopCommand(),
+            new OsvConnectCommand()]
       })
    }
 
@@ -82,5 +85,13 @@ export class OsvTerminal extends Cmd {
       else {
          return this.currentPath;
       }
+   }
+
+   public getInstanceSchemeHostPort(): string {
+      return this.instanceSchemeHostPort;
+   }
+
+   public setInstanceSchemeHostPort(value: string) {
+      this.instanceSchemeHostPort = value;
    }
 }

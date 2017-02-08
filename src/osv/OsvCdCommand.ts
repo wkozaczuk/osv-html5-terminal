@@ -19,7 +19,7 @@ export class OsvCdCommand extends OsvCommandBase {
       const path: string = commandArguments[commandArguments.length - 1];
       this.resolvedPath = this.cmd.resolvePath(path);
       const rpath: string = encodeURIComponent(this.resolvedPath);
-      return OsvCommandBase.urlBase + "/file/" + rpath + "?op=GETFILESTATUS";
+      return this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=GETFILESTATUS";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

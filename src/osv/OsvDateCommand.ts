@@ -14,7 +14,7 @@ export class OsvDateCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/date";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/date";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

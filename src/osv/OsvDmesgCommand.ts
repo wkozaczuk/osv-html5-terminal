@@ -14,7 +14,7 @@ export class OsvDmesgCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/dmesg";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/dmesg";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

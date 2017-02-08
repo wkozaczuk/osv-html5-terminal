@@ -133,7 +133,7 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/hardware/processor/count";
+      return this.cmd.getInstanceSchemeHostPort() + "/hardware/processor/count";
    }
    
    handleExecutionSuccess(options: Set<string>, response: any) {
@@ -142,7 +142,7 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
       this.cmd.subscribeToKeyPressed(this);
 
       $.ajax({
-         url: OsvCommandBase.urlBase + "/os/threads",
+         url: this.cmd.getInstanceSchemeHostPort() + "/os/threads",
          method: this.method,
          success: (newResponse)=>this.handleThreadsResponse(options,newResponse),
          error: (newResponse)=>this.handleExecutionError(newResponse)
@@ -180,7 +180,7 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
       if(!this.stop) {
          setTimeout(()=>{
             $.ajax({
-               url: OsvCommandBase.urlBase + "/os/threads",
+               url: this.cmd.getInstanceSchemeHostPort() + "/os/threads",
                method: this.method,
                success: (newResponse)=>this.handleThreadsResponse(options,newResponse),
                error: (newResponse)=>this.handleExecutionError(newResponse)
@@ -256,7 +256,7 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
             let value = thread[columnDefinition.source];
 
             if (columnDefinition.rate && this.lastThreadsState) {
-               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source]; //What if this is new thread
+               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source]; //TODO What if this is new thread --> blows up!!!
                value = value / (timeElapsedMs);
             }
             else

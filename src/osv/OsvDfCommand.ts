@@ -16,10 +16,10 @@ export class OsvDfCommand extends OsvCommandBase {
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
       if(commandArguments.length > 0 ) {
-         return OsvCommandBase.urlBase + "/fs/df/" + encodeURIComponent(commandArguments[0]);
+         return this.cmd.getInstanceSchemeHostPort() + "/fs/df/" + encodeURIComponent(commandArguments[0]);
       }
       else {
-         return OsvCommandBase.urlBase + "/fs/df";
+         return this.cmd.getInstanceSchemeHostPort() + "/fs/df";
       }
    }
 

@@ -94,7 +94,6 @@ export class Cmd {
                this.configuration.executableCommands.forEach((command)=> {
                   this.allCommands.push(command.typed);
                });
-
             }
          });
       } else {

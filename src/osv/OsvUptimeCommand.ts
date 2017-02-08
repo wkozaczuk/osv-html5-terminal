@@ -14,7 +14,7 @@ export class OsvUptimeCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/uptime";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/uptime";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

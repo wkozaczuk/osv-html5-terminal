@@ -14,7 +14,7 @@ export class OsvFreeCommand extends OsvCommandBase {
    }
 
    buildUrl(options: Set<string>, commandArguments: string[]) {
-      return OsvCommandBase.urlBase + "/os/memory/total";
+      return this.cmd.getInstanceSchemeHostPort() + "/os/memory/total";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
@@ -22,7 +22,7 @@ export class OsvFreeCommand extends OsvCommandBase {
       if(typeof(response) === "number") {
          const totalMemory = <number>response;
          $.ajax({
-            url: OsvCommandBase.urlBase +"/os/memory/free",
+            url: this.cmd.getInstanceSchemeHostPort() +"/os/memory/free",
             method: this.method,
             success: (freeMemoryResponse)=>{
                if(typeof(freeMemoryResponse) === "number") {

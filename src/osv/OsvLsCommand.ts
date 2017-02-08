@@ -35,7 +35,7 @@ export class OsvLsCommand extends OsvCommandBase {
       }
 
       let rpath = encodeURIComponent(this.path);
-      return OsvCommandBase.urlBase + "/file/" + rpath + "?op=LISTSTATUS";
+      return this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=LISTSTATUS";
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
@@ -60,7 +60,7 @@ export class OsvLsCommand extends OsvCommandBase {
          let nextSubdirectory = allSubdirectories.shift();
 
          $.ajax({
-            url: OsvCommandBase.urlBase + "/file/" + encodeURIComponent(nextSubdirectory) + "?op=LISTSTATUS",
+            url: this.cmd.getInstanceSchemeHostPort() + "/file/" + encodeURIComponent(nextSubdirectory) + "?op=LISTSTATUS",
             method: this.method,
             success: (newResponse)=>{
                this.listDirectory(options,newResponse,nextSubdirectory);
