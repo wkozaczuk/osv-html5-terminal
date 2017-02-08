@@ -21,8 +21,10 @@ import {OsvCdCommand} from "./OsvCdCommand";
 import {OsvPwdCommand} from "./OsvPwdCommand";
 import {OsvTopCommand} from "./OsvTopCommand";
 import {OsvConnectCommand} from "./OsvConnectCommand";
+import {OsvApi,OsvApiImpl} from "./OsvApi";
 
 export class OsvTerminal extends Cmd {
+   api:OsvApi = new OsvApiImpl();
    private instanceSchemeHostPort:string = "http://localhost:8000";
    private currentPath:string = "/";
    private parentPathRegex:RegExp = /\/[^\/]+\/\.\.\//g;
