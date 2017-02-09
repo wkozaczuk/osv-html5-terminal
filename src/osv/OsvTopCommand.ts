@@ -255,12 +255,12 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
             let columnDefinition:OsvThreadDefinition = OsvTopCommand.columns[name];
             let value = thread[columnDefinition.source];
 
-            if (columnDefinition.rate && this.lastThreadsState) {
-               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source]; //TODO What if this is new thread --> blows up!!!
+            if (columnDefinition.rate && this.lastThreadsState && this.lastThreadsState.threadsById[thread.id]) {
+               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source];
                value = value / (timeElapsedMs);
             }
             else
-            if(columnDefinition.rateby && this.lastThreadsState) {
+            if(columnDefinition.rateby && this.lastThreadsState && this.lastThreadsState.threadsById[thread.id]) {
                value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source];
                if(value) {
                   value = value / (thread[columnDefinition.rateby] - this.lastThreadsState.threadsById[thread.id][columnDefinition.rateby]);
