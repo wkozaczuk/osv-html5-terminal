@@ -62,7 +62,7 @@ All commands support --help option.
             - etc
     - ability to edit file (cat and then put)
     - path completion when ls, cd, etc
-    - HTTPS with client certificate - figure out 
+    - HTTPS with client certificate
 - Refactoring
     - extract OSv API abstraction
     - use promises (JQuery)
