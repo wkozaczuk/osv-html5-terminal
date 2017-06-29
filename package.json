@@ -9,15 +9,17 @@
   "author": "Waldemar Kozaczuk",
   "license": "ISC",
   "dependencies": {
-    "@types/jquery": "^2.0.39",
-    "systemjs": "^0.19.41",
-    "typescript-collections": "^1.2.3"
+    "@types/jquery": "2.0.39",
+    "systemjs": "0.19.41",
+    "typescript-collections": "1.2.3"
   },
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-connect": "^1.0.2",
-    "grunt-contrib-copy": "~1.0.0",
-    "grunt-contrib-less": "~1.4.0",
-    "typescript": "2.1.4"
+    "grunt": "0.4.5",
+    "grunt-cli": "1.2.0",
+    "grunt-contrib-connect": "1.0.2",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-less": "1.4.0",
+    "grunt-ts": "6.0.0-beta.16",
+    "typescript": "2.3.3"
   }
 }
