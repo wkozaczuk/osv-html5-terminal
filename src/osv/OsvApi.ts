@@ -20,7 +20,7 @@ export interface FileStatus {
 
 export class OsvApiImpl implements OsvApi {
 
-   private instanceSchemeHostPort:string = "http://localhost:8000";
+   private instanceSchemeHostPort:string = "";
 
    private makeApiCall(url:string,method:string="GET"):JQueryPromise<any> {
       return $.ajax({

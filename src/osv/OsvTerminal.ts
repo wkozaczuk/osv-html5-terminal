@@ -25,7 +25,7 @@ import {OsvApi,OsvApiImpl} from "./OsvApi";
 
 export class OsvTerminal extends Cmd {
    api:OsvApi = new OsvApiImpl();
-   private instanceSchemeHostPort:string = "http://localhost:8000";
+   private instanceSchemeHostPort:string = "";
    private currentPath:string = "/";
    private parentPathRegex:RegExp = /\/[^\/]+\/\.\.\//g;
 
@@ -52,7 +52,7 @@ export class OsvTerminal extends Cmd {
             new OsvTopCommand(),
             new OsvConnectCommand()],
          afterInitialized: () => {
-            let defaultInstanceSchemeHostPort = "http://localhost:8000";
+            let defaultInstanceSchemeHostPort = "";
             $.ajax({
                url: `${defaultInstanceSchemeHostPort}/os/name`,
                timeout: 1000,
