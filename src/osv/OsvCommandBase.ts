@@ -74,4 +74,16 @@ export abstract class OsvCommandBase implements Command {
          });
       }
    }
+
+   humanReadableByteSize(bytes:number):string {
+      let unit = 1024;
+      if (bytes < unit) {
+         return bytes + "B";
+      }
+
+      let exp = parseInt((Math.log(bytes) / Math.log(unit)) + '', 10);
+      let size = "KMGTP".charAt(exp - 1);
+      let precision = 1;
+      return ( bytes / Math.pow(unit, exp)).toFixed(precision) + size;
+  }
 }

@@ -24,6 +24,7 @@ export class OsvDfCommand extends OsvCommandBase {
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {
+      let humanReadable = options.contains("h");
       let output = '<table>';
       output = output + '<tr>' +
          '<th>Filesystem</th>' +
@@ -33,10 +34,12 @@ export class OsvDfCommand extends OsvCommandBase {
          '<th>Mounted on</th>' +
          '</tr>';
       response.forEach((entry) => {
+         let _total = humanReadable ? this.humanReadableByteSize(entry.btotal): entry.btotal; 
+         let _used = humanReadable ? this.humanReadableByteSize(entry.btotal-entry.bfree): (entry.btotal - entry.bfree); 
          output = output + '<tr>' +
             '<td>' + entry.filesystem + '</td>' +
-            '<td>' + entry.btotal + '</td>' +
-            '<td>' + (entry.btotal - entry.bfree) + '</td>' +
+            '<td>' + _total + '</td>' +
+            '<td>' + _used + '</td>' +
             '<td>' + (100 - Math.round(100 * (entry.bfree / entry.btotal))) + '</td>' +
             '<td>' + entry.mount + '</td>' +
             '</tr>';

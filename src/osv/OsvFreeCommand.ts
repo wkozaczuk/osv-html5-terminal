@@ -26,7 +26,7 @@ export class OsvFreeCommand extends OsvCommandBase {
             method: this.method,
             success: (freeMemoryResponse)=>{
                if(typeof(freeMemoryResponse) === "number") {
-                  this.displayOutputTable(totalMemory,<number>freeMemoryResponse)
+                  this.displayOutputTable(totalMemory,<number>freeMemoryResponse,options.contains("h"))
                }
                else {
                   this.handleWrongData();
@@ -40,10 +40,13 @@ export class OsvFreeCommand extends OsvCommandBase {
       }
    }
 
-   private displayOutputTable(total:number,free:number) {
+   private displayOutputTable(total:number, free:number, humanReadable:boolean) {
+      let _total = humanReadable ? this.humanReadableByteSize(total): total; 
+      let _used = humanReadable ? this.humanReadableByteSize(total-free): (total - free); 
+      let _free = humanReadable ? this.humanReadableByteSize(free): free;       
       let output = '<table>';
       output = output + '<tr><td>&nbsp;</td><td>total</td><td>used</td><td>free</td></tr>';
-      output = output + `<tr><td>Mem</td><td>${total}</td><td>${total-free}</td><td>${free}</td></tr>`;
+      output = output + `<tr><td>Mem</td><td>${_total}</td><td>${_used}</td><td>${_free}</td></tr>`;
       output = output + '</table>';
       this.cmd.displayOutput(output, true);
    }
