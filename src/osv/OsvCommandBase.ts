@@ -8,10 +8,8 @@ import {Command} from "../cmd/Cmd";
 import Set from "typescript-collections/dist/lib/Set";
 import {OsvTerminal} from "./OsvTerminal";
 
-export abstract class OsvCommandBase implements Command {
+export abstract class OsvGenericCommandBase implements Command {
    protected cmd: OsvTerminal;
-
-   method: string = "GET";
 
    abstract readonly typed:string;
    abstract readonly description:string;
@@ -19,9 +17,9 @@ export abstract class OsvCommandBase implements Command {
 
    abstract matches(input: string): boolean;
 
-   abstract buildUrl(options: Set<string>, commandArguments: string[]): string
-
    abstract handleExecutionSuccess(options: Set<string>, response: any);
+
+   abstract makeApiCall(commandArguments:string[], options:Set<string>);
 
    handleExecutionError(response: any) {
       console.log(response);
@@ -65,13 +63,7 @@ export abstract class OsvCommandBase implements Command {
          this.cmd.displayOutput(this.help);
       }
       else {
-         $.ajax({
-            url: this.buildUrl(options, commandArguments),
-            method: this.method,
-            timeout: 1000,
-            success: (response)=>this.handleExecutionSuccess(options, response),
-            error: (response)=>this.handleExecutionError(response)
-         });
+         this.makeApiCall(commandArguments, options);
       }
    }
 
@@ -86,4 +78,31 @@ export abstract class OsvCommandBase implements Command {
       let precision = 1;
       return ( bytes / Math.pow(unit, exp)).toFixed(precision) + size;
   }
+}
+
+export abstract class OsvCommandBase extends OsvGenericCommandBase {
+  method: string = "GET";
+
+  abstract buildUrl(options: Set<string>, commandArguments: string[]): string
+  
+  makeApiCall(commandArguments:string[], options:Set<string>) {
+    $.ajax({
+      url: this.buildUrl(options, commandArguments),
+      method: this.method,
+      timeout: 1000,
+      success: (response)=>this.handleExecutionSuccess(options, response),
+      error: (response)=>this.handleExecutionError(response)
+   });
+  }  
+}
+
+export abstract class OsvApiCommandBase extends OsvGenericCommandBase {
+  abstract executeApi(commandArguments: string[], options: Set<string>):JQueryPromise<any>
+
+  makeApiCall(commandArguments:string[], options:Set<string>) {
+    this.executeApi(commandArguments, options).then(
+      (response)=>this.handleExecutionSuccess(options, response),
+      (response)=>this.handleExecutionError(response)
+   );   
+  }  
 }

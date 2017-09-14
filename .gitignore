@@ -4,3 +4,6 @@ js/*.js*
 dist/*
 .idea
 *.iml
+.tscache/
+package-lock.json
+src/.baseDir.ts

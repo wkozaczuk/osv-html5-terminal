@@ -1,9 +1,7 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvMkdirCommand extends OsvCommandBase {
-   method: string = "PUT";
-
+export class OsvMkdirCommand extends OsvApiCommandBase {
    typed:string = 'mkdir';
 
    description:string = 'make directories';
@@ -18,19 +16,11 @@ export class OsvMkdirCommand extends OsvCommandBase {
       return input.indexOf('mkdir') === 0;
    }
    
-   buildUrl(options: Set<string>, commandArguments: string[]) {
+   executeApi(commandArguments:string[], options: Set<string>) {
       const path: string = commandArguments[commandArguments.length - 1];
       const resolvedPath = this.cmd.resolvePath(path);
-      const rpath: string = encodeURIComponent(resolvedPath);
-      let basePath = this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=MKDIRS&permission=0755";
-
       const createParents = options.contains("p") || options.contains("parents");
-      if(createParents) {
-         return basePath + "&createParent=true"
-      }
-      else {
-         return basePath;
-      }
+      return this.cmd.api.createDirectory(resolvedPath,createParents);
    }
 
    handleExecutionSuccess(options: Set<string>, response: any) {

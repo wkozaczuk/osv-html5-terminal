@@ -34,8 +34,9 @@ export class OsvDfCommand extends OsvCommandBase {
          '<th>Mounted on</th>' +
          '</tr>';
       response.forEach((entry) => {
-         let _total = humanReadable ? this.humanReadableByteSize(entry.btotal): entry.btotal; 
-         let _used = humanReadable ? this.humanReadableByteSize(entry.btotal-entry.bfree): (entry.btotal - entry.bfree); 
+         //TODO: 512 may not be the constant block size for all volumes   
+         let _total = humanReadable ? this.humanReadableByteSize(entry.btotal*512): entry.btotal; 
+         let _used = humanReadable ? this.humanReadableByteSize((entry.btotal-entry.bfree)*512): (entry.btotal - entry.bfree); 
          output = output + '<tr>' +
             '<td>' + entry.filesystem + '</td>' +
             '<td>' + _total + '</td>' +

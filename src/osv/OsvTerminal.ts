@@ -109,5 +109,6 @@ export class OsvTerminal extends Cmd {
 
    public setInstanceSchemeHostPort(value: string) {
       this.instanceSchemeHostPort = value;
+      this.api.setInstanceSchemeHostPort(value);
    }
 }
