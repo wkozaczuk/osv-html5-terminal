@@ -1,7 +1,7 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvRmCommand extends OsvCommandBase {
+export class OsvRmCommand extends OsvApiCommandBase<void> {
    method: string = "DELETE";
 
    typed:string = 'rm';
@@ -14,14 +14,13 @@ export class OsvRmCommand extends OsvCommandBase {
       return input.indexOf('rm') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<void> {
       const path: string = commandArguments[commandArguments.length - 1];
       const resolvedPath = this.cmd.resolvePath(path);
-      const rpath: string = encodeURIComponent(resolvedPath);
-      return this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=DELETE";
+      return this.cmd.api.deleteFile(resolvedPath);
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response: void) {
       this.cmd.displayOutput("File deleted!", true);
    }
 }

@@ -3,7 +3,8 @@
     "sourceMap": true,
     "module": "system",
     "moduleResolution": "node",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
  "include": [
    "src/*.ts",

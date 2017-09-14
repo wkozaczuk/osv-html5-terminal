@@ -17,8 +17,6 @@ export abstract class OsvGenericCommandBase implements Command {
 
    abstract matches(input: string): boolean;
 
-   abstract handleExecutionSuccess(options: Set<string>, response: any);
-
    abstract makeApiCall(commandArguments:string[], options:Set<string>);
 
    handleExecutionError(response: any) {
@@ -84,6 +82,8 @@ export abstract class OsvCommandBase extends OsvGenericCommandBase {
   method: string = "GET";
 
   abstract buildUrl(options: Set<string>, commandArguments: string[]): string
+
+  abstract handleExecutionSuccess(options: Set<string>, response: any);  
   
   makeApiCall(commandArguments:string[], options:Set<string>) {
     $.ajax({
@@ -96,9 +96,11 @@ export abstract class OsvCommandBase extends OsvGenericCommandBase {
   }  
 }
 
-export abstract class OsvApiCommandBase extends OsvGenericCommandBase {
-  abstract executeApi(commandArguments: string[], options: Set<string>):JQueryPromise<any>
+export abstract class OsvApiCommandBase<T> extends OsvGenericCommandBase {
+  abstract executeApi(commandArguments: string[], options: Set<string>):JQueryPromise<T>
 
+  abstract handleExecutionSuccess(options: Set<string>,response:T);  
+  
   makeApiCall(commandArguments:string[], options:Set<string>) {
     this.executeApi(commandArguments, options).then(
       (response)=>this.handleExecutionSuccess(options, response),

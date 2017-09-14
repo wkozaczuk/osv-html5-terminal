@@ -1,8 +1,8 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvCmdlineCommand extends OsvCommandBase {
-   typed:string = 'cmdline';
+export class OsvCmdlineCommand extends OsvApiCommandBase<string> {
+  typed: string = 'cmdline';
 
    description:string = 'print OSv application cmdline';
 
@@ -13,11 +13,11 @@ export class OsvCmdlineCommand extends OsvCommandBase {
       return input === 'cmdline';
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/os/cmdline";
-   }
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<string> {
+      return this.cmd.api.getCmdline(); 
+  }
    
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options:Set<string>, response:string) {
       this.cmd.displayOutput(response.toString(), true);
    }
 }

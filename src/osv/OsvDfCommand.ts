@@ -1,7 +1,8 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
+import {FileSystem} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvDfCommand extends OsvCommandBase {
+export class OsvDfCommand extends OsvApiCommandBase<FileSystem[]> {
    typed:string = 'df';
 
    description:string = 'report file system disk space usage';
@@ -14,16 +15,16 @@ export class OsvDfCommand extends OsvCommandBase {
       return input.indexOf('df') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
+   executeApi(commandArguments: string[], options: Set<string>) : JQueryPromise<FileSystem[]> {
       if(commandArguments.length > 0 ) {
-         return this.cmd.getInstanceSchemeHostPort() + "/fs/df/" + encodeURIComponent(commandArguments[0]);
+         return this.cmd.api.getFileSystems(commandArguments[0]);
       }
       else {
-         return this.cmd.getInstanceSchemeHostPort() + "/fs/df";
+         return this.cmd.api.getFileSystems();
       }
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response: FileSystem[]) {
       let humanReadable = options.contains("h");
       let output = '<table>';
       output = output + '<tr>' +
@@ -33,6 +34,7 @@ export class OsvDfCommand extends OsvCommandBase {
          '<th>Use%</th>' +
          '<th>Mounted on</th>' +
          '</tr>';
+      
       response.forEach((entry) => {
          //TODO: 512 may not be the constant block size for all volumes   
          let _total = humanReadable ? this.humanReadableByteSize(entry.btotal*512): entry.btotal; 

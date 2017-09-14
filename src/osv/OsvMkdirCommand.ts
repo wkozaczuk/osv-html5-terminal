@@ -1,7 +1,7 @@
 import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvMkdirCommand extends OsvApiCommandBase {
+export class OsvMkdirCommand extends OsvApiCommandBase<void> {
    typed:string = 'mkdir';
 
    description:string = 'make directories';
@@ -23,7 +23,7 @@ export class OsvMkdirCommand extends OsvApiCommandBase {
       return this.cmd.api.createDirectory(resolvedPath,createParents);
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response:void) {
       this.cmd.displayOutput("Directory created!", true);
    }
 }

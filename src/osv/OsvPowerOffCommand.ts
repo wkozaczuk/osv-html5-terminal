@@ -1,10 +1,8 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvPowerOffCommand extends OsvCommandBase {
-   method: string = "POST";
-
-   typed:string = 'poweroff';
+export class OsvPowerOffCommand extends OsvApiCommandBase<void> {
+   typed: string = 'poweroff';
 
    description:string = 'poweroff an OSv instance';
 
@@ -15,11 +13,12 @@ export class OsvPowerOffCommand extends OsvCommandBase {
       return input.indexOf('poweroff') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/os/poweroff";
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<void> {
+      return this.cmd.api.powerOff();
    }
    
-   handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
+   handleExecutionSuccess(options: Set<string>, response:void) {
+      //TODO: Eventually provide 
+      //this.cmd.displayOutput(response.toStrreplace(/\n/g, "<BR>"), true); 
    }
 }

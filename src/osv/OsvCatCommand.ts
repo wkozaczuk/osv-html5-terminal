@@ -1,8 +1,8 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvCatCommand extends OsvCommandBase {
-   typed:string = 'cat';
+export class OsvCatCommand extends OsvApiCommandBase<string> {
+   typed: string = 'cat';
 
    description:string = 'concatenate files and print on the standard output';
 
@@ -12,15 +12,14 @@ export class OsvCatCommand extends OsvCommandBase {
    matches(input: string) {
       return input.indexOf('cat') === 0;
    }
-
-   buildUrl(options: Set<string>, commandArguments: string[]) {
+   
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<string> {
       const path: string = commandArguments[commandArguments.length - 1];
       const resolvedPath = this.cmd.resolvePath(path);
-      const rpath: string = encodeURIComponent(resolvedPath);
-      return this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=GET";
+      return this.cmd.api.getFile(resolvedPath);
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response:string) {
       //TODO escape HTML
       //const escapedOutput =
       this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);

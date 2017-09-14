@@ -1,7 +1,7 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvDateCommand extends OsvCommandBase {
+export class OsvDateCommand extends OsvApiCommandBase<string> {
    typed:string ='date';
 
    description:string = 'print the system date and time';
@@ -13,11 +13,11 @@ export class OsvDateCommand extends OsvCommandBase {
       return input.indexOf('date') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/os/date";
+   executeApi(commandArguments: string[], options: Set<string>) {
+      return this.cmd.api.getSystemDate();
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response: string) {
       this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
    }
 }

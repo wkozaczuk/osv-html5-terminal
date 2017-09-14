@@ -1,11 +1,10 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
 //TODO: Improve by showing 'rebooting ...' and checking if some status calls returns 200
 // to show that it is back online
-export class OsvRebootCommand extends OsvCommandBase {
-   method: string = "POST";
-
+// Or it could be that this waits until OSv is rebooted
+export class OsvRebootCommand extends OsvApiCommandBase<void> {
    typed:string = 'reboot';
 
    description:string = 'reboot an OSv instance';
@@ -17,11 +16,11 @@ export class OsvRebootCommand extends OsvCommandBase {
       return input.indexOf('reboot') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/os/reboot";
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<void> {
+      return this.cmd.api.reboot();
    }
    
-   handleExecutionSuccess(options: Set<string>, response: any) {
-      this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
+   handleExecutionSuccess(options: Set<string>, response: void) {
+      //this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
    }
 }

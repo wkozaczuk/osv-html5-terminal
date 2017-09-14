@@ -1,7 +1,7 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvDmesgCommand extends OsvCommandBase {
+export class OsvDmesgCommand extends OsvApiCommandBase<string> {
    typed:string = 'dmesg';
 
    description:string = 'print operating system boot log';
@@ -13,11 +13,11 @@ export class OsvDmesgCommand extends OsvCommandBase {
       return input.indexOf('dmesg') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/os/dmesg";
+   executeApi(commandArguments: string[], options: Set<string>) : JQueryPromise<string> {
+      return this.cmd.api.getSystemLog();
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response: string) {
       this.cmd.displayOutput(response.replace(/\n/g, "<BR>"), true);
    }
 }

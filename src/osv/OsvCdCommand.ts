@@ -1,8 +1,9 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
+import {FileStatus} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvCdCommand extends OsvCommandBase {
-   private resolvedPath:string;
+export class OsvCdCommand extends OsvApiCommandBase<FileStatus> {
+   private resolvedPath: string;
 
    typed:string = 'cd';
 
@@ -15,14 +16,13 @@ export class OsvCdCommand extends OsvCommandBase {
       return input.indexOf('cd') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
+   executeApi(commandArguments:string[], options: Set<string>): JQueryPromise<FileStatus> {
       const path: string = commandArguments[commandArguments.length - 1];
       this.resolvedPath = this.cmd.resolvePath(path);
-      const rpath: string = encodeURIComponent(this.resolvedPath);
-      return this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=GETFILESTATUS";
+      return this.cmd.api.getFileStatus(this.resolvedPath);
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options:Set<string>, response:FileStatus) {
       if(response.type == "DIRECTORY") {
          this.cmd.setCurrentPath(this.resolvedPath);
          this.cmd.displayOutput(`Changed current directory to ${this.resolvedPath}`, true)

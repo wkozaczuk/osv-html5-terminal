@@ -1,7 +1,8 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
+import {FileStatus} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvLsCommand extends OsvCommandBase {
+export class OsvLsCommand extends OsvApiCommandBase<FileStatus[]> {
 
    private path:string;
    private static LongDateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -26,19 +27,17 @@ export class OsvLsCommand extends OsvCommandBase {
       return input.indexOf('ls') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]): string {
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<FileStatus[]> {
       if (commandArguments.length > 0) {
          this.path = this.cmd.resolvePath(commandArguments[commandArguments.length - 1]);
       }
       else {
          this.path = this.cmd.resolvePath();
       }
-
-      let rpath = encodeURIComponent(this.path);
-      return this.cmd.getInstanceSchemeHostPort() + "/file/" + rpath + "?op=LISTSTATUS";
+      return this.cmd.api.listFiles(this.path);
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response: FileStatus[]) {
       this.listDirectory(options,response);
       //
       // Check if we need to go recursive
@@ -47,31 +46,28 @@ export class OsvLsCommand extends OsvCommandBase {
       }
    }
 
-   private listSubdirectories(options: Set<string>, response: any, thisPath:string, otherSubdirectories: string[]) {
+   private listSubdirectories(options: Set<string>, response: FileStatus[], thisPath:string, otherSubdirectories: string[]) {
       let prefixPath = thisPath[thisPath.length-1] == '/' ? thisPath.substr(0,thisPath.length-1) : thisPath;
 
       let subdirectories = response
-         .filter((entry) => entry.pathSuffix != '.' && entry.pathSuffix != '..' && entry.type == 'DIRECTORY')
+         .filter((entry) => entry.pathSuffix != '.' && entry.pathSuffix != '..' && entry.isDirectory())
          .map((entry) => `${prefixPath}/${entry.pathSuffix}`);
 
       let allSubdirectories = subdirectories.concat(otherSubdirectories);
 
       if(allSubdirectories.length > 0) {
          let nextSubdirectory = allSubdirectories.shift();
-
-         $.ajax({
-            url: this.cmd.getInstanceSchemeHostPort() + "/file/" + encodeURIComponent(nextSubdirectory) + "?op=LISTSTATUS",
-            method: this.method,
-            success: (newResponse)=>{
-               this.listDirectory(options,newResponse,nextSubdirectory);
-               this.listSubdirectories(options, newResponse, nextSubdirectory, allSubdirectories)
+         
+         this.cmd.api.listFiles(nextSubdirectory).then(
+            (successResponse)=>{
+                  this.listDirectory(options,successResponse,nextSubdirectory);
+                  this.listSubdirectories(options, successResponse, nextSubdirectory, allSubdirectories)
             },
-            error: (newResponse)=>this.handleExecutionError(newResponse)
-         });
+            (errorResponse)=>this.handleExecutionError(errorResponse))
       }
    }
 
-   private listDirectory(options: Set<string>, response: any, thisDirectory?: string) {
+   private listDirectory(options: Set<string>, response: FileStatus[], thisDirectory?: string) {
       let longFormat = options.contains("l");
       let showAll = options.contains("a") || options.contains("all");
 
@@ -95,20 +91,14 @@ export class OsvLsCommand extends OsvCommandBase {
             output = output + `<tr><td colspan="7">${thisDirectory}:</td></tr>`;
          }
          entries.forEach((entry) => {
-            let directoryPrefix = entry.type == 'DIRECTORY' ? 'd' : '-';
-
-            //TODO: Permissions for some directories look different - fit it
-            let permissionsRwx =
-               this.rwx(parseInt(entry.permission[0])) +
-               this.rwx(parseInt(entry.permission[1])) +
-               this.rwx(parseInt(entry.permission[2]));
+            let directoryPrefix = entry.isDirectory() ? 'd' : '-';
 
             let modificationDateTime = new Date(entry.modificationTime * 1000);
             //TODO: Make it use with last year cut off logic tha would NOT show hour and minute
             let modificationDateTimeStr = modificationDateTime.toLocaleDateString('en-US', OsvLsCommand.LongDateTimeFormatOptions);
 
             output = output + '<tr>' +
-               `<td>${directoryPrefix}${permissionsRwx}</td>` +
+               `<td>${directoryPrefix}${entry.getPermissionsRwx()}</td>` +
                `<td>${entry.replication}</td>` +
                `<td>${entry.owner}</td>` +
                `<td>${entry.group}</td>` +
@@ -124,20 +114,6 @@ export class OsvLsCommand extends OsvCommandBase {
          let output = '';
          entries.forEach((entry)=>output = output + '<BR>' + entry.pathSuffix);
          this.cmd.displayOutput(output, false)
-      }
-   }
-
-   private rwx(permissions:number):string {
-      switch(permissions) {
-         case 0: return "---";
-         case 1: return "--x";
-         case 2: return "-w-";
-         case 3: return "-wx";
-         case 4: return "r--";
-         case 5: return "r-x";
-         case 6: return "rw-";
-         case 7: return "rwx";
-         default: return "   ";
       }
    }
 }
