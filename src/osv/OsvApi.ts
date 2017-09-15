@@ -143,14 +143,8 @@ export class OsvApiImpl implements OsvApi {
       return this.makeApiCall(`/file/${rpath}?op=LISTSTATUS`)
         .done(files => {
            let deferred = jQuery.Deferred();   
-           let enrichedFileStatuses = files.map(file => {
-              let extension = new FileStatusExtension(file);   
-              for (let id in extension) {
-                  (<any>file)[id] = (<any>extension)[id];
-              }  
-              return file;
-           });
-           deferred.resolveWith(enrichedFileStatuses);
+           let extendedFiles = files.map(file => this.extend(file,new FileStatusExtension(file)));   
+           deferred.resolveWith(extendedFiles);
            return deferred.promise();
         });   
    }
@@ -161,5 +155,12 @@ export class OsvApiImpl implements OsvApi {
 
    reboot():JQueryPromise<void> {
       return this.makeApiCall('/os/reboot',"POST")   
+   }
+
+   private extend(original:any,extension:any) {
+      for (let id in extension) {
+         (<any>original)[id] = (<any>extension)[id];
+      }
+      return original;     
    }
 }
