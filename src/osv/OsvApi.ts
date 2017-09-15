@@ -11,7 +11,7 @@ export interface OsvApi {
    getSystemDate():JQueryPromise<string>;
    getSystemLog():JQueryPromise<string>
    getUpTimeInSeconds():JQueryPromise<number> 
-   listFiles(path:string):JQueryPromise<FileStatus[]>
+   listFiles(path:string):JQueryPromise<EnrichedFileStatus[]>
    powerOff():JQueryPromise<void>
    reboot():JQueryPromise<void>
 }
@@ -21,27 +21,31 @@ export interface MemoryInfo {
    totalInBytes:number;   
 }
 
-export abstract class FileStatus {
-   abstract readonly owner:string;
-   abstract readonly group:string;
-   abstract readonly permission:string;
-   abstract readonly blockSize:number;
-   abstract readonly accessTime:number;
-   abstract readonly pathSuffix:string;
-   abstract readonly modificationTime:number;
-   abstract readonly replication:number;
-   abstract readonly length:number;
-   abstract readonly type:string;
+export interface FileStatus {
+   readonly owner:string;
+   readonly group:string;
+   readonly permission:string;
+   readonly blockSize:number;
+   readonly accessTime:number;
+   readonly pathSuffix:string;
+   readonly modificationTime:number;
+   readonly replication:number;
+   readonly length:number;
+   readonly type:string;
+}
 
+export class FileStatusExtension {
+   public constructor(private fileStatus:FileStatus) {}    
+   
    isDirectory() {
-      return this.type == 'DIRECTORY'
+      return this.fileStatus.type == 'DIRECTORY'
    }
 
    getPermissionsRwx() {
       //TODO: Permissions for some directories look different - fit it
-      return this.rwx(parseInt(this.permission[0])) +
-         this.rwx(parseInt(this.permission[1])) +
-         this.rwx(parseInt(this.permission[2]));   
+      return this.rwx(parseInt(this.fileStatus.permission[0])) +
+         this.rwx(parseInt(this.fileStatus.permission[1])) +
+         this.rwx(parseInt(this.fileStatus.permission[2]));   
    }
 
    private rwx(permissions:number):string {
@@ -58,6 +62,8 @@ export abstract class FileStatus {
       }
    }
 }
+
+export type EnrichedFileStatus = FileStatus & FileStatusExtension
 
 export interface FileSystem {
    mount:string;
@@ -132,9 +138,21 @@ export class OsvApiImpl implements OsvApi {
       return this.makeApiCall(`/os/uptime`);   
    }
 
-   listFiles(path:string):JQueryPromise<FileStatus[]> {
+   listFiles(path:string):JQueryPromise<EnrichedFileStatus[]> {
       const rpath: string = encodeURIComponent(path);
-      return this.makeApiCall(`/file/${rpath}?op=LISTSTATUS`);
+      return this.makeApiCall(`/file/${rpath}?op=LISTSTATUS`)
+        .done(files => {
+           let deferred = jQuery.Deferred();   
+           let enrichedFileStatuses = files.map(file => {
+              let extension = new FileStatusExtension(file);   
+              for (let id in extension) {
+                  (<any>file)[id] = (<any>extension)[id];
+              }  
+              return file;
+           });
+           deferred.resolveWith(enrichedFileStatuses);
+           return deferred.promise();
+        });   
    }
 
    powerOff():JQueryPromise<void> {

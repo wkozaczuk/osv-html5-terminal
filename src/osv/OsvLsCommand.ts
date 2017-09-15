@@ -1,8 +1,8 @@
 import {OsvApiCommandBase} from "./OsvCommandBase"
-import {FileStatus} from "./OsvApi"
+import {EnrichedFileStatus} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvLsCommand extends OsvApiCommandBase<FileStatus[]> {
+export class OsvLsCommand extends OsvApiCommandBase<EnrichedFileStatus[]> {
 
    private path:string;
    private static LongDateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -27,7 +27,7 @@ export class OsvLsCommand extends OsvApiCommandBase<FileStatus[]> {
       return input.indexOf('ls') === 0;
    }
 
-   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<FileStatus[]> {
+   executeApi(commandArguments: string[], options: Set<string>): JQueryPromise<EnrichedFileStatus[]> {
       if (commandArguments.length > 0) {
          this.path = this.cmd.resolvePath(commandArguments[commandArguments.length - 1]);
       }
@@ -37,7 +37,7 @@ export class OsvLsCommand extends OsvApiCommandBase<FileStatus[]> {
       return this.cmd.api.listFiles(this.path);
    }
 
-   handleExecutionSuccess(options: Set<string>, response: FileStatus[]) {
+   handleExecutionSuccess(options: Set<string>, response: EnrichedFileStatus[]) {
       this.listDirectory(options,response);
       //
       // Check if we need to go recursive
@@ -46,7 +46,7 @@ export class OsvLsCommand extends OsvApiCommandBase<FileStatus[]> {
       }
    }
 
-   private listSubdirectories(options: Set<string>, response: FileStatus[], thisPath:string, otherSubdirectories: string[]) {
+   private listSubdirectories(options: Set<string>, response: EnrichedFileStatus[], thisPath:string, otherSubdirectories: string[]) {
       let prefixPath = thisPath[thisPath.length-1] == '/' ? thisPath.substr(0,thisPath.length-1) : thisPath;
 
       let subdirectories = response
@@ -67,7 +67,7 @@ export class OsvLsCommand extends OsvApiCommandBase<FileStatus[]> {
       }
    }
 
-   private listDirectory(options: Set<string>, response: FileStatus[], thisDirectory?: string) {
+   private listDirectory(options: Set<string>, response: EnrichedFileStatus[], thisDirectory?: string) {
       let longFormat = options.contains("l");
       let showAll = options.contains("a") || options.contains("all");
 
