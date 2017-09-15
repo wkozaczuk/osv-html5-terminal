@@ -1,7 +1,8 @@
-import {OsvCommandBase} from "./OsvCommandBase"
+import {OsvApiCommandBase} from "./OsvCommandBase"
+import {MemoryInfo} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvFreeCommand extends OsvCommandBase {
+export class OsvFreeCommand extends OsvApiCommandBase<MemoryInfo> {
    typed:string = 'free';
 
    description:string = 'display amount of free and used memory in system';
@@ -13,31 +14,12 @@ export class OsvFreeCommand extends OsvCommandBase {
       return input.indexOf('free') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/os/memory/total";
+   executeApi(commandArguments: string[], options: Set<string>):JQueryPromise<MemoryInfo> {
+      return this.cmd.api.getMemoryInfo();
    }
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
-
-      if(typeof(response) === "number") {
-         const totalMemory = <number>response;
-         $.ajax({
-            url: this.cmd.getInstanceSchemeHostPort() +"/os/memory/free",
-            method: this.method,
-            success: (freeMemoryResponse)=>{
-               if(typeof(freeMemoryResponse) === "number") {
-                  this.displayOutputTable(totalMemory,<number>freeMemoryResponse,options.contains("h"))
-               }
-               else {
-                  this.handleWrongData();
-               }
-            },
-            error: (response)=>this.handleExecutionError(response)
-         });
-      }
-      else {
-         this.handleWrongData();
-      }
+   handleExecutionSuccess(options: Set<string>, response: MemoryInfo) {
+      this.displayOutputTable(response.totalInBytes,response.freeInBytes,options.contains("h"))
    }
 
    private displayOutputTable(total:number, free:number, humanReadable:boolean) {
@@ -49,9 +31,5 @@ export class OsvFreeCommand extends OsvCommandBase {
       output = output + `<tr><td>Mem</td><td>${_total}</td><td>${_used}</td><td>${_free}</td></tr>`;
       output = output + '</table>';
       this.cmd.displayOutput(output, true);
-   }
-
-   private handleWrongData() {
-      this.cmd.displayOutput("Wrong data returned from server", true);
    }
 }

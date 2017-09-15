@@ -8,6 +8,7 @@ export interface OsvApi {
    getFileStatus(filename:string):JQueryPromise<FileStatus>;
    getFileSystems(filesystem?:string):JQueryPromise<FileSystem[]>
    getOsName():JQueryPromise<string> 
+   getMemoryInfo():JQueryPromise<MemoryInfo>    
    getSystemDate():JQueryPromise<string>;
    getSystemLog():JQueryPromise<string>
    getUpTimeInSeconds():JQueryPromise<number> 
@@ -16,9 +17,8 @@ export interface OsvApi {
    reboot():JQueryPromise<void>
 }
 
-export interface MemoryInfo {
-   freeInBytes:number;
-   totalInBytes:number;   
+export class MemoryInfo {
+   public constructor(readonly freeInBytes:number, readonly totalInBytes:number) {}   
 }
 
 export interface FileStatus {
@@ -82,7 +82,8 @@ export class OsvApiImpl implements OsvApi {
       return $.ajax({
          url: `${this.instanceSchemeHostPort}${path}`,
          method: method,
-         timeout: 1000
+         timeout: 1000,
+         async: true
       });
    }
 
@@ -126,6 +127,18 @@ export class OsvApiImpl implements OsvApi {
       return this.makeApiCall(`/os/name`);
    }
 
+   getMemoryInfo():JQueryPromise<MemoryInfo> {
+      //TODO: Fix it to handle errors (switch to then()?) 
+      let deferred = jQuery.Deferred<MemoryInfo>();   
+      $.when(
+         this.makeApiCall(`/os/memory/total`),
+         this.makeApiCall(`/os/memory/free`)    
+      ).done((totalResponse,freeResponse)=>{
+         deferred.resolve(new MemoryInfo(freeResponse[0],totalResponse[0]));       
+      });
+      return deferred.promise();   
+   }
+
    getSystemDate():JQueryPromise<string> {
       return this.makeApiCall(`/os/date`);
    }
@@ -139,14 +152,15 @@ export class OsvApiImpl implements OsvApi {
    }
 
    listFiles(path:string):JQueryPromise<EnrichedFileStatus[]> {
+      //TODO: Fix it to handle errors (switch to then()?)   
       const rpath: string = encodeURIComponent(path);
-      return this.makeApiCall(`/file/${rpath}?op=LISTSTATUS`)
-        .done(files => {
-           let deferred = jQuery.Deferred();   
+      let deferred = jQuery.Deferred<EnrichedFileStatus[]>(); 
+      this.makeApiCall(`/file/${rpath}?op=LISTSTATUS`)
+        .done(files => {             
            let extendedFiles = files.map(file => this.extend(file,new FileStatusExtension(file)));   
-           deferred.resolveWith(extendedFiles);
-           return deferred.promise();
-        });   
+           deferred.resolve(extendedFiles);           
+        });  
+        return deferred.promise();   
    }
 
    powerOff():JQueryPromise<void> {
