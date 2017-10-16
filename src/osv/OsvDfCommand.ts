@@ -1,8 +1,8 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import {FileSystem} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvDfCommand extends OsvApiCommandBase<FileSystem[]> {
+export class OsvDfCommand extends OsvCommandBase<FileSystem[]> {
    typed:string = 'df';
 
    description:string = 'report file system disk space usage';

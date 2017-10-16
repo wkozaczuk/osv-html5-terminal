@@ -1,9 +1,9 @@
 import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvConnectCommand extends OsvCommandBase {
-   private newInstanceSchemeHostPort:string;
+export class OsvConnectCommand extends OsvCommandBase<string> {
    typed:string = 'connect';
+   currentInstanceSchemeHostPort:string;
 
    description:string = 'switch this terminal to point to another OSv instance';
 
@@ -14,20 +14,26 @@ export class OsvConnectCommand extends OsvCommandBase {
       return input.indexOf('connect') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      this.newInstanceSchemeHostPort = commandArguments[0];
-      return this.newInstanceSchemeHostPort + "/os/name";
-   }
+   executeApi(commandArguments: string[], options: Set<string>) : JQueryPromise<string> {
+      this.currentInstanceSchemeHostPort = this.cmd.api.getInstanceSchemeHostPort();
+      this.cmd.api.setInstanceSchemeHostPort(commandArguments[0]);
+      return this.cmd.api.getOsName();   
+   }   
 
-   handleExecutionSuccess(options: Set<string>, response: any) {
+   handleExecutionSuccess(options: Set<string>, response: string) {
       if(response == "OSv") {
-         $("#status").html(`Connected to ${this.newInstanceSchemeHostPort}`);
-         this.cmd.setInstanceSchemeHostPort(this.newInstanceSchemeHostPort);
+         $("#status").html(`Connected to ${this.cmd.api.getInstanceSchemeHostPort()}`);
          this.cmd.setCurrentPath("/");
-         this.cmd.displayOutput(`Successfully connected to ${this.newInstanceSchemeHostPort}`, true);
+         this.cmd.displayOutput(`Successfully connected to ${this.cmd.api.getInstanceSchemeHostPort()}`, true);
       }
       else {
-         this.cmd.displayOutput(`Git weird response from ${this.newInstanceSchemeHostPort}`, true);
+         this.cmd.displayOutput(`Git weird response from ${this.cmd.api.getInstanceSchemeHostPort()}`, true);
+         this.cmd.setInstanceSchemeHostPort(this.currentInstanceSchemeHostPort);         
       }
+   }
+
+   handleExecutionError(response: any) {
+      this.cmd.setInstanceSchemeHostPort(this.currentInstanceSchemeHostPort);
+      super.handleExecutionError(response);
    }
 }

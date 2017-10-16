@@ -1,7 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvCatCommand extends OsvApiCommandBase<string> {
+export class OsvCatCommand extends OsvCommandBase<string> {
    typed: string = 'cat';
 
    description:string = 'concatenate files and print on the standard output';

@@ -8,7 +8,7 @@ import {Cmd} from "../cmd/Cmd";
 import {OsvCatCommand} from "./OsvCatCommand";
 import {OsvLsCommand} from "./OsvLsCommand";
 import {OsvDmesgCommand} from "./OsvDmesgCommand";
-import {OsvRebootCommand} from "./OsvReboot";
+import {OsvRebootCommand} from "./OsvRebootCommand";
 import {OsvCmdlineCommand} from "./OsvCmdlineCommand";
 import {OsvDateCommand} from "./OsvDateCommand";
 import {OsvPowerOffCommand} from "./OsvPowerOffCommand";

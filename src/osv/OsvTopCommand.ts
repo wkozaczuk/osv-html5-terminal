@@ -1,20 +1,7 @@
 import {OsvCommandBase} from "./OsvCommandBase"
+import {CpuUtilization} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 import {KeyPressedSubscriber} from "../cmd/Cmd";
-
-interface OsvThread {
-   status:string
-   priority:number
-   preemptions:number   // ???
-   name:string
-   migrations:number    // ???
-   cpu: number|'-'      // Id of the CPU this thread is on currently
-   switches: number     // ???
-   cpu_ms: number       // Time this thread spent on CPU since it was created
-   cpu_ms_delta: number
-   id: number
-   stack_size: number
-}
 
 interface OsvThreadDefinition {
    name:string
@@ -25,11 +12,6 @@ interface OsvThreadDefinition {
    multiplier?:number
 }
 
-interface OsvThreadsState {
-   time_ms:number
-   threadsById:Object
-}
-
 interface OsvTopData {
    threadsTable:string[][];
    threadsCount:number;
@@ -37,7 +19,7 @@ interface OsvTopData {
    totalIdle:number;
 }
 
-export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscriber {
+export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements KeyPressedSubscriber {
    private static columns:Object = {
       "ID": {
          name: "ID",
@@ -111,7 +93,7 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
    private static allColumnNames = ["ID", "CPU", "%CPU", "TIME",
       "sw", "sw/s", "us/sw", "preempt","pre/s", "mig", "mig/s", "NAME", "STATUS"];
 
-   private lastThreadsState:OsvThreadsState;
+   private lastCpuUtilization:CpuUtilization;
    private stop = false;
    private processorsCount:number = 0;
 
@@ -132,24 +114,15 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
       return input.indexOf('top') === 0;
    }
 
-   buildUrl(options: Set<string>, commandArguments: string[]) {
-      return this.cmd.getInstanceSchemeHostPort() + "/hardware/processor/count";
-   }
-   
-   handleExecutionSuccess(options: Set<string>, response: any) {
-      this.processorsCount = response;
+   executeApi(commandArguments: string[], options: Set<string>) : JQueryPromise<CpuUtilization> {
       this.stop = false;
       this.cmd.subscribeToKeyPressed(this);
-
-      $.ajax({
-         url: this.cmd.getInstanceSchemeHostPort() + "/os/threads",
-         method: this.method,
-         success: (newResponse)=>this.handleThreadsResponse(options,newResponse),
-         error: (newResponse)=>this.handleExecutionError(newResponse)
-      });
-   }
-
-   private handleThreadsResponse(options: Set<string>, response: any) {
+      return this.cmd.api.getCpuUtilization();   
+   }   
+   
+   handleExecutionSuccess(options: Set<string>, response: CpuUtilization) {
+      this.processorsCount = response.processorsCount;
+      
       let columnNames = OsvTopCommand.defaultColumnNames;
       if(options.contains("s") || options.contains("switches")) {
          columnNames = OsvTopCommand.allColumnNames;
@@ -178,14 +151,8 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
       //
       // Set to redo in 2 seconds
       if(!this.stop) {
-         setTimeout(()=>{
-            $.ajax({
-               url: this.cmd.getInstanceSchemeHostPort() + "/os/threads",
-               method: this.method,
-               success: (newResponse)=>this.handleThreadsResponse(options,newResponse),
-               error: (newResponse)=>this.handleExecutionError(newResponse)
-            });
-         },2000);
+         setTimeout(()=>this.cmd.api.getCpuUtilization(this.lastCpuUtilization)
+            .then((_response)=>this.handleExecutionSuccess(options,_response)),2000);
       }
    }
 
@@ -197,37 +164,10 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
       }
    }
 
-   private interpretThreads(response:any,columnNames:string[],showIdle:boolean):OsvTopData {
-      let currentThreadState:OsvThreadsState = {
-         time_ms:response.time_ms,
-         threadsById:{}
-      };
-
-      let idleThreads:OsvThread[] = [];
-      let threadsList:OsvThread[] = response.list;
-      //
-      // Normalize and identify idle threads
-      threadsList.forEach(thread => {
-         if(thread.cpu == 0xffffffff) {
-            thread.cpu = '-'
-         }
-         //
-         // Calculate delta of cpu_ms => how much time this thread spent on a cpu
-         let previousCpuMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread.id] &&
-            this.lastThreadsState.threadsById[thread.id].cpu_ms) || 0;
-
-         thread.cpu_ms_delta = thread.cpu_ms - previousCpuMs;
-
-         let isIdle = thread.name.indexOf("idle") == 0;
-         if(isIdle) {
-            idleThreads.push(thread);
-         }
-
-         currentThreadState.threadsById[thread.id] = thread;
-      });
+   private interpretThreads(cpuUtilization:CpuUtilization,columnNames:string[],showIdle:boolean):OsvTopData {
       //
       // Sort by time in ms particular thread spent on a CPU
-      threadsList.sort((thread1,thread2) => {
+      cpuUtilization.threads.sort((thread1,thread2) => {
          if(thread2.cpu_ms_delta != thread1.cpu_ms_delta) {
             return thread2.cpu_ms_delta - thread1.cpu_ms_delta;
          }
@@ -235,35 +175,24 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
             return thread2.cpu_ms - thread1.cpu_ms;
          }
       });
-
-      let idles = [];
-      let totalIdle = 0;
-      idleThreads.forEach(thread=> {
-         let lastThreadMs = (this.lastThreadsState && this.lastThreadsState.threadsById[thread.id].cpu_ms) || 0;
-         let lastTimeMs = (this.lastThreadsState && this.lastThreadsState.time_ms) || 0;
-         let idle = (100 * (thread.cpu_ms - lastThreadMs)) / (currentThreadState.time_ms - lastTimeMs);
-         totalIdle += idle;
-         idles[thread.cpu] = idle;
-      });
       //
       // Reformat and ...
-      let timeElapsedMs = (currentThreadState.time_ms - ((this.lastThreadsState && this.lastThreadsState.time_ms) || 0)) / 1000; //What if not
-      let threadsTable = threadsList
+      let threadsTable = cpuUtilization.threads
          .filter(thread => thread.name.indexOf("idle") != 0)
          .map(thread => {
          return columnNames.map(name => {
             let columnDefinition:OsvThreadDefinition = OsvTopCommand.columns[name];
             let value = thread[columnDefinition.source];
 
-            if (columnDefinition.rate && this.lastThreadsState && this.lastThreadsState.threadsById[thread.id]) {
-               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source];
-               value = value / (timeElapsedMs);
+            if (columnDefinition.rate && this.lastCpuUtilization && this.lastCpuUtilization.threadsById[thread.id]) {
+               value = value - this.lastCpuUtilization.threadsById[thread.id][columnDefinition.source];
+               value = value / (cpuUtilization.timeElapsedMs);
             }
             else
-            if(columnDefinition.rateby && this.lastThreadsState && this.lastThreadsState.threadsById[thread.id]) {
-               value = value - this.lastThreadsState.threadsById[thread.id][columnDefinition.source];
+            if(columnDefinition.rateby && this.lastCpuUtilization && this.lastCpuUtilization.threadsById[thread.id]) {
+               value = value - this.lastCpuUtilization.threadsById[thread.id][columnDefinition.source];
                if(value) {
-                  value = value / (thread[columnDefinition.rateby] - this.lastThreadsState.threadsById[thread.id][columnDefinition.rateby]);
+                  value = value / (thread[columnDefinition.rateby] - this.lastCpuUtilization.threadsById[thread.id][columnDefinition.rateby]);
                }
             }
 
@@ -279,12 +208,14 @@ export class OsvTopCommand extends OsvCommandBase implements KeyPressedSubscribe
             }
          });
       });
-      this.lastThreadsState = currentThreadState;
+
+      this.lastCpuUtilization = cpuUtilization;
+      
       return {
          threadsTable:threadsTable,
-         threadsCount:threadsList.length,
-         idleThreadsCpu:idles,
-         totalIdle:totalIdle
+         threadsCount:cpuUtilization.threads.length,
+         idleThreadsCpu:cpuUtilization.idlePercentageByCpu,
+         totalIdle:cpuUtilization.idlePercentageByCpu.reduce((acc,val)=>acc+val)
       };
    }
 }

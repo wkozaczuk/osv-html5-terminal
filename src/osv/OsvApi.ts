@@ -1,20 +1,23 @@
 export interface OsvApi {
-   setInstanceSchemeHostPort(_instanceSchemeHostPort:string)
+   getInstanceSchemeHostPort():string;  
+   setInstanceSchemeHostPort(_instanceSchemeHostPort:string);
 
-   createDirectory(path:string,createParents?:boolean,permissions?:string):JQueryPromise<void> 
-   deleteFile(filename:string):JQueryPromise<void>
-   getCmdline():JQueryPromise<string> 
+   createDirectory(path:string,createParents?:boolean,permissions?:string):JQueryPromise<void>; 
+   deleteFile(filename:string):JQueryPromise<void>;
+   getCmdline():JQueryPromise<string>; 
+   getCpuUtilization(lastCpuUtilization?:CpuUtilization):JQueryPromise<CpuUtilization>;
    getFile(filename:string):JQueryPromise<string>;
    getFileStatus(filename:string):JQueryPromise<FileStatus>;
-   getFileSystems(filesystem?:string):JQueryPromise<FileSystem[]>
-   getOsName():JQueryPromise<string> 
-   getMemoryInfo():JQueryPromise<MemoryInfo>    
+   getFileSystems(filesystem?:string):JQueryPromise<FileSystem[]>;
+   getOsName():JQueryPromise<string>; 
+   getProcessorsCount():JQueryPromise<number>;
+   getMemoryInfo():JQueryPromise<MemoryInfo>;    
    getSystemDate():JQueryPromise<string>;
-   getSystemLog():JQueryPromise<string>
-   getUpTimeInSeconds():JQueryPromise<number> 
-   listFiles(path:string):JQueryPromise<EnrichedFileStatus[]>
-   powerOff():JQueryPromise<void>
-   reboot():JQueryPromise<void>
+   getSystemLog():JQueryPromise<string>;
+   getUpTimeInSeconds():JQueryPromise<number>; 
+   listFiles(path:string):JQueryPromise<EnrichedFileStatus[]>;
+   powerOff():JQueryPromise<void>;
+   reboot():JQueryPromise<void>;
 }
 
 export class MemoryInfo {
@@ -38,7 +41,7 @@ export class FileStatusExtension {
    public constructor(private fileStatus:FileStatus) {}    
    
    isDirectory() {
-      return this.fileStatus.type == 'DIRECTORY'
+      return this.fileStatus.type == 'DIRECTORY';
    }
 
    getPermissionsRwx() {
@@ -74,6 +77,34 @@ export interface FileSystem {
    btotal:number;
 }
 
+export interface Thread {
+   status:string;
+   priority:number;
+   preemptions:number;   // ???
+   name:string;
+   migrations:number;    // ???
+   cpu: number|'-';      // Id of the CPU this thread is on currently
+   switches: number;     // ???
+   cpu_ms: number;       // Time this thread spent on CPU since it was created
+   cpu_ms_delta: number;
+   id: number;
+   stack_size: number;
+}
+
+interface ThreadsRespone {
+   time_ms:number;
+   list:Thread[];   
+}   
+
+export interface CpuUtilization {
+  time_ms:number;
+  timeElapsedMs:number;
+  threads:Thread[];
+  threadsById:Object;
+  idlePercentageByCpu:number[];
+  processorsCount:number
+}
+
 export class OsvApiImpl implements OsvApi {
 
    private instanceSchemeHostPort:string = "";
@@ -85,6 +116,10 @@ export class OsvApiImpl implements OsvApi {
          timeout: 1000,
          async: true
       });
+   }
+
+   getInstanceSchemeHostPort():string {
+      return this.instanceSchemeHostPort;
    }
 
    setInstanceSchemeHostPort(_instanceSchemeHostPort:string) {
@@ -106,6 +141,16 @@ export class OsvApiImpl implements OsvApi {
       return this.makeApiCall(`/os/cmdline`);
    }
 
+   getCpuUtilization(lastCpuUtilization?:CpuUtilization):JQueryPromise<CpuUtilization> {
+      let deferred = jQuery.Deferred<CpuUtilization>();   
+      this.makeApiCall('/os/threads')    
+         .done((threadsResponse)=>{
+            let cpuUtilization = this.calculateCpuUtilization(threadsResponse,lastCpuUtilization);   
+            deferred.resolve(cpuUtilization);       
+         });
+      return deferred.promise();  
+   }
+
    getFile(filename:string):JQueryPromise<string> {
       const rpath: string = encodeURIComponent(filename);
       return this.makeApiCall(`/file/${rpath}?op=GET`);
@@ -123,10 +168,6 @@ export class OsvApiImpl implements OsvApi {
          return this.makeApiCall(`/fs/df`);  
    }
 
-   getOsName():JQueryPromise<string> {
-      return this.makeApiCall(`/os/name`);
-   }
-
    getMemoryInfo():JQueryPromise<MemoryInfo> {
       //TODO: Fix it to handle errors (switch to then()?) 
       let deferred = jQuery.Deferred<MemoryInfo>();   
@@ -137,6 +178,14 @@ export class OsvApiImpl implements OsvApi {
          deferred.resolve(new MemoryInfo(freeResponse[0],totalResponse[0]));       
       });
       return deferred.promise();   
+   }
+
+   getOsName():JQueryPromise<string> {
+      return this.makeApiCall(`/os/name`);
+   }
+
+   getProcessorsCount():JQueryPromise<number> {
+      return this.makeApiCall('/hardware/processor/count');
    }
 
    getSystemDate():JQueryPromise<string> {
@@ -160,7 +209,7 @@ export class OsvApiImpl implements OsvApi {
            let extendedFiles = files.map(file => this.extend(file,new FileStatusExtension(file)));   
            deferred.resolve(extendedFiles);           
         });  
-        return deferred.promise();   
+      return deferred.promise();   
    }
 
    powerOff():JQueryPromise<void> {
@@ -176,5 +225,51 @@ export class OsvApiImpl implements OsvApi {
          (<any>original)[id] = (<any>extension)[id];
       }
       return original;     
+   }
+
+   private calculateCpuUtilization(response:ThreadsRespone,lastCpuUtilization?:CpuUtilization):CpuUtilization {
+      let thisCpuUtilization:CpuUtilization = {
+         time_ms:response.time_ms,
+         timeElapsedMs:0,
+         threadsById:{},
+         threads:response.list,
+         idlePercentageByCpu:[],
+         processorsCount:0
+      };
+
+      let idleThreads:Thread[] = [];
+      //
+      // Normalize and identify idle threads
+      thisCpuUtilization.threads.forEach(thread => {
+         if(thread.cpu == 0xffffffff) {
+            thread.cpu = '-'
+         }
+         //
+         // Calculate delta of cpu_ms => how much time this thread spent on a cpu
+         let previousCpuMs = (
+            lastCpuUtilization &&
+            lastCpuUtilization.threadsById[thread.id] &&
+            lastCpuUtilization.threadsById[thread.id].cpu_ms) || 0;
+
+         thread.cpu_ms_delta = thread.cpu_ms - previousCpuMs;
+
+         let isIdle = thread.name.indexOf("idle") == 0;
+         if(isIdle) {
+            idleThreads.push(thread);
+         }
+
+         thisCpuUtilization.threadsById[thread.id] = thread;
+      });
+
+      idleThreads.forEach(thread=> {
+         let lastThreadMs = (lastCpuUtilization && lastCpuUtilization.threadsById[thread.id].cpu_ms) || 0;
+         let lastTimeMs = (lastCpuUtilization && lastCpuUtilization.time_ms) || 0;
+         let idlePercentage = (100 * (thread.cpu_ms - lastThreadMs)) / (thisCpuUtilization.time_ms - lastTimeMs);
+         thisCpuUtilization.idlePercentageByCpu[thread.cpu] = idlePercentage;
+      });
+
+      thisCpuUtilization.processorsCount = idleThreads.length;
+      thisCpuUtilization.timeElapsedMs = thisCpuUtilization.time_ms - ((lastCpuUtilization && lastCpuUtilization.time_ms) || 0);      
+      return thisCpuUtilization;
    }
 }

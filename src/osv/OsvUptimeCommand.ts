@@ -1,7 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvUptimeCommand extends OsvApiCommandBase<number> {
+export class OsvUptimeCommand extends OsvCommandBase<number> {
    typed:string = 'uptime';
 
    description:string = 'tell how long the system has been running';

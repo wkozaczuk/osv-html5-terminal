@@ -1,8 +1,8 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import {EnrichedFileStatus} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvLsCommand extends OsvApiCommandBase<EnrichedFileStatus[]> {
+export class OsvLsCommand extends OsvCommandBase<EnrichedFileStatus[]> {
 
    private path:string;
    private static LongDateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };

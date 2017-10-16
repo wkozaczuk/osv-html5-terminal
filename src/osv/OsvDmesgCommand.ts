@@ -1,7 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvDmesgCommand extends OsvApiCommandBase<string> {
+export class OsvDmesgCommand extends OsvCommandBase<string> {
    typed:string = 'dmesg';
 
    description:string = 'print operating system boot log';

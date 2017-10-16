@@ -1,8 +1,8 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import {MemoryInfo} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvFreeCommand extends OsvApiCommandBase<MemoryInfo> {
+export class OsvFreeCommand extends OsvCommandBase<MemoryInfo> {
    typed:string = 'free';
 
    description:string = 'display amount of free and used memory in system';

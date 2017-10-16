@@ -1,7 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvPowerOffCommand extends OsvApiCommandBase<void> {
+export class OsvPowerOffCommand extends OsvCommandBase<void> {
    typed: string = 'poweroff';
 
    description:string = 'poweroff an OSv instance';

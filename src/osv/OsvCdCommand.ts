@@ -1,8 +1,8 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import {FileStatus} from "./OsvApi"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvCdCommand extends OsvApiCommandBase<FileStatus> {
+export class OsvCdCommand extends OsvCommandBase<FileStatus> {
    private resolvedPath: string;
 
    typed:string = 'cd';

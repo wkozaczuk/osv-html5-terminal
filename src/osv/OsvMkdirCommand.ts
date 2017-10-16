@@ -1,7 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvMkdirCommand extends OsvApiCommandBase<void> {
+export class OsvMkdirCommand extends OsvCommandBase<void> {
    typed:string = 'mkdir';
 
    description:string = 'make directories';

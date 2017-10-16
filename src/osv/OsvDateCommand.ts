@@ -1,7 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvDateCommand extends OsvApiCommandBase<string> {
+export class OsvDateCommand extends OsvCommandBase<string> {
    typed:string ='date';
 
    description:string = 'print the system date and time';

@@ -1,9 +1,7 @@
-import {OsvApiCommandBase} from "./OsvCommandBase"
+import {OsvCommandBase} from "./OsvCommandBase"
 import Set from "typescript-collections/dist/lib/Set";
 
-export class OsvRmCommand extends OsvApiCommandBase<void> {
-   method: string = "DELETE";
-
+export class OsvRmCommand extends OsvCommandBase<void> {
    typed:string = 'rm';
 
    description:string = 'remove files or directories';
