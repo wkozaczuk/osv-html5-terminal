@@ -98,6 +98,7 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
    private processorsCount:number = 0;
    private inputString:string = '';
    private nameFilter:RegExp;
+   private stateFilter:RegExp;
    private resetInput:boolean = true;
 
    typed:string = 'top';
@@ -123,6 +124,7 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
       this.inputString = '';
       this.resetInput = true;
       this.nameFilter = new RegExp('^');
+      this.stateFilter = new RegExp('^');      
       return this.cmd.api.getCpuUtilization();   
    }   
    
@@ -140,7 +142,18 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
       }
 
       try {
-         this.nameFilter = new RegExp(`^` + this.inputString);   
+         if(this.inputString.indexOf('n:') == 0 ) {
+            this.nameFilter = new RegExp(`^` + this.inputString.substring(2)); 
+            this.stateFilter = new RegExp(`^`); 
+         }   
+         else if(this.inputString.indexOf('s:') == 0 ) {
+            this.nameFilter = new RegExp(`^`);
+            this.stateFilter = new RegExp(`^` + this.inputString.substring(2));            
+         }
+         else {
+            this.nameFilter = new RegExp(`^` + this.inputString);
+            this.stateFilter = new RegExp(`^`); 
+         } 
       }
       catch(e) {            
       }
@@ -188,7 +201,7 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
       //
       // Filter
       let threads = cpuUtilization.threads
-         .filter(thread => thread.name.indexOf("idle") != 0 && this.nameFilter.test(thread.name));
+         .filter(thread => thread.name.indexOf("idle") != 0 && this.nameFilter.test(thread.name) && this.stateFilter.test(thread.status));
       //
       // Sort by time in ms particular thread spent on a CPU
       threads.sort((thread1,thread2) => {
