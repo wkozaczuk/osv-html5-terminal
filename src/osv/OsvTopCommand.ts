@@ -96,6 +96,9 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
    private lastCpuUtilization:CpuUtilization;
    private stop = false;
    private processorsCount:number = 0;
+   private inputString:string = '';
+   private nameFilter:RegExp;
+   private resetInput:boolean = true;
 
    typed:string = 'top';
 
@@ -117,6 +120,9 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
    executeApi(commandArguments: string[], options: Set<string>) : JQueryPromise<CpuUtilization> {
       this.stop = false;
       this.cmd.subscribeToKeyPressed(this);
+      this.inputString = '';
+      this.resetInput = true;
+      this.nameFilter = new RegExp('^');
       return this.cmd.api.getCpuUtilization();   
    }   
    
@@ -127,9 +133,21 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
       if(options.contains("s") || options.contains("switches")) {
          columnNames = OsvTopCommand.allColumnNames;
       }
-      let topData = this.interpretThreads(response,columnNames,false);
 
+      if(this.resetInput) {
+         this.cmd.setInputString('');
+         this.resetInput = false;
+      }
+
+      try {
+         this.nameFilter = new RegExp(`^` + this.inputString);   
+      }
+      catch(e) {            
+      }
+
+      let topData = this.interpretThreads(response,columnNames,false);
       let statusLine = `${topData.threadsCount} threads on ${this.processorsCount} CPUs; `;
+      
       topData.idleThreadsCpu.forEach(idle=>statusLine = statusLine + idle.toFixed(0) + "% ");
       statusLine = statusLine + '% ' + topData.totalIdle.toFixed(0) + '%';
 
@@ -146,8 +164,10 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
          }
       });
       output = output + '</table>';
+      this.inputString = this.cmd.getInputString();
       this.cmd.clearScreen();
       this.cmd.displayOutput(`${statusLine}<BR>${output}<BR>Press q to quit ...`, false);
+      this.cmd.setInputString(this.inputString);
       //
       // Set to redo in 2 seconds
       if(!this.stop) {
@@ -166,9 +186,13 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
 
    private interpretThreads(cpuUtilization:CpuUtilization,columnNames:string[],showIdle:boolean):OsvTopData {
       //
+      // Filter
+      let threads = cpuUtilization.threads
+         .filter(thread => thread.name.indexOf("idle") != 0 && this.nameFilter.test(thread.name));
+      //
       // Sort by time in ms particular thread spent on a CPU
-      cpuUtilization.threads.sort((thread1,thread2) => {
-         if(thread2.cpu_ms_delta != thread1.cpu_ms_delta) {
+      threads.sort((thread1,thread2) => {
+         if(thread2.cpu_ms_delta != thread1.cpu_ms_delta) { 
             return thread2.cpu_ms_delta - thread1.cpu_ms_delta;
          }
          else {
@@ -177,9 +201,7 @@ export class OsvTopCommand extends OsvCommandBase<CpuUtilization> implements Key
       });
       //
       // Reformat and ...
-      let threadsTable = cpuUtilization.threads
-         .filter(thread => thread.name.indexOf("idle") != 0)
-         .map(thread => {
+      let threadsTable = threads.map(thread => {
          return columnNames.map(name => {
             let columnDefinition:OsvThreadDefinition = OsvTopCommand.columns[name];
             let value = thread[columnDefinition.source];

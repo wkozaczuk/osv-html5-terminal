@@ -166,6 +166,14 @@ export class Cmd {
       this.input.val('');
    }
 
+   public getInputString():string {
+      return this.input.val();   
+   }
+
+   public setInputString(str:string) {
+      return this.input.val(str);   
+   }
+
    /**
     * Temporarily disable input while running commands
     */
