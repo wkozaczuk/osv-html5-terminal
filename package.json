@@ -4,7 +4,10 @@
   "description": "OSv HTML5 terminal app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node_modules/grunt-cli/bin/grunt",
+    "server": "npm run open",
+    "open": "concurrently \"node server\" \"open-cli http://localhost:8080/cli\""
   },
   "author": "Waldemar Kozaczuk",
   "license": "ISC",
@@ -20,6 +23,11 @@
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-less": "1.4.0",
     "grunt-ts": "6.0.0-beta.16",
-    "typescript": "2.3.3"
+    "typescript": "2.3.3",
+    "express": "^4.2.0",
+    "serve-index": "^1.9.1",
+    "concurrently": "^5.1.0",
+    "open": "^7.0.3",
+    "open-cli": "^6.0.0"
   }
 }

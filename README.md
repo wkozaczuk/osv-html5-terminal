@@ -7,12 +7,12 @@ The command line handling logic converted to Typescript from JS project https://
 * npm install
 
 ##### Build
-* grunt
+* npm run build
   * The dist directory will contain all app artifacts.
 
-##### Run locally
-* grunt connect
-  * connect to http://localhost:8001 in the browser
+##### Run locally and open the app in the default browser
+* npm run server
+  * Expects OSv httpserver running and exposed on port 8000
 
 ### Motivation
 OSv comes with an httpserver module that serves REST API. It also comes with lua-based cli 
